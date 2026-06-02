@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Wedding Invitation</title>
+  <link rel="stylesheet" href="css/invite.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>&#x1F48D;</text></svg>" />
+  <meta property="og:title" content="You are Invited" />
+  <meta property="og:description" content="Join us to celebrate our special day" />
+</head>
+<body>
+
+<!-- Page Loader -->
+<div id="page-loader">
+  <div class="loader-rings"></div>
+  <div class="loader-text">Loading your invitation</div>
+</div>
+
+<!-- Expired Overlay -->
+<div id="expired-overlay">
+  <div class="expired-icon">&#x1F48D;</div>
+  <div class="expired-title">This Invitation Has Ended</div>
+  <div class="expired-sub">The wedding celebrations have passed. Thank you for being part of their story.</div>
+</div>
+
+<!-- Particle Canvas (T3) -->
+<canvas id="particle-canvas"></canvas>
+
+<!-- Music Player -->
+<div id="music-player">
+  <button class="music-btn" id="music-play-btn" aria-label="Play or pause music" onclick="toggleMusic()">
+    <svg id="music-icon-play" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg>
+    <svg id="music-icon-pause" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+  </button>
+  <span class="music-label" id="music-label">Music</span>
+  <button class="music-mute-btn" id="music-mute-btn" aria-label="Mute or unmute music" onclick="toggleMute()">
+    <svg id="mute-icon-on" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" style="stroke:inherit;fill:none;stroke-width:1.8"/>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" style="stroke:inherit;fill:none;stroke-width:1.8;stroke-linecap:round"/>
+    </svg>
+    <svg id="mute-icon-off" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display:none">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" style="stroke:inherit;fill:none;stroke-width:1.8"/>
+      <line x1="23" y1="9" x2="17" y2="15" style="stroke:inherit;fill:none;stroke-width:1.8;stroke-linecap:round"/>
+      <line x1="17" y1="9" x2="23" y2="15" style="stroke:inherit;fill:none;stroke-width:1.8;stroke-linecap:round"/>
+    </svg>
+  </button>
+</div>
+<audio id="bgm" loop preload="none"></audio>
+
+<!-- ===================================================
+     SECTION 1: HERO
+     =================================================== -->
+<section id="hero">
+  <div class="hero-vector-bg" id="hero-vector-bg"></div>
+  <div class="hero-bg" id="hero-bg"></div>
+
+  <div class="hero-figures">
+    <img class="figure-bride" id="figure-bride" src="" alt="Bride" />
+    <img class="figure-groom" id="figure-groom" src="" alt="Groom" />
+  </div>
+
+  <!-- Couple reveal card -->
+  <div class="hero-reveal-card" id="hero-reveal-card">
+    <div class="hero-reveal-couple-photos" id="hero-reveal-photos"></div>
+    <div class="hero-reveal-name" id="hero-reveal-name"></div>
+    <div class="hero-reveal-date" id="hero-reveal-date"></div>
+  </div>
+
+  <!-- Sparkle burst SVG -->
+  <div class="sparkle-burst" id="sparkle-burst" style="opacity:0;pointer-events:none">
+    <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" id="sparkle-svg"></svg>
+  </div>
+
+  <!-- Large swipe slider -->
+  <div class="slider-container" id="slider-container">
+    <div class="slider-hint" id="slider-hint">Swipe right to bring them together</div>
+    <div class="swipe-slider" id="swipe-slider">
+      <div class="swipe-track">
+        <div class="swipe-fill" id="swipe-fill"></div>
+        <div class="swipe-label-bg">
+          <span class="swipe-bg-text">SLIDE</span>
+        </div>
+      </div>
+      <div class="swipe-thumb" id="swipe-thumb">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="22" height="22">
+          <path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/>
+        </svg>
+      </div>
+    </div>
+    <!-- Fallback tap button for accessibility -->
+    <button class="slider-skip-btn" id="slider-skip" onclick="completeSlider()">
+      Tap to reveal
+    </button>
+  </div>
+
+  <div class="scroll-indicator">
+    <span>scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ===================================================
+     SECTION 2: FAMILY
+     =================================================== -->
+<section id="section-family" class="section">
+  <div class="section-inner">
+    <div class="section-label reveal">With the blessings of</div>
+    <div class="ornament reveal delay-1">
+      <div class="ornament-line"></div>
+      <div class="ornament-diamond"></div>
+      <div class="ornament-line right"></div>
+    </div>
+    <div class="family-grid reveal delay-2">
+      <div class="family-block">
+        <div class="family-role">Groom's Family</div>
+        <div class="family-phrase">Son of</div>
+        <div class="family-name" id="fam-groom-father"></div>
+        <div style="margin:10px 0;color:var(--gold);opacity:0.28;font-family:'Cormorant Garamond',serif;font-size:20px">&amp;</div>
+        <div class="family-name" id="fam-groom-mother"></div>
+      </div>
+      <div class="family-divider">
+        <div class="family-v-line"></div>
+        <div class="family-heart">&#x1F48D;</div>
+        <div class="family-v-line"></div>
+      </div>
+      <div class="family-block">
+        <div class="family-role">Bride's Family</div>
+        <div class="family-phrase">Daughter of</div>
+        <div class="family-name" id="fam-bride-father"></div>
+        <div style="margin:10px 0;color:var(--gold);opacity:0.28;font-family:'Cormorant Garamond',serif;font-size:20px">&amp;</div>
+        <div class="family-name" id="fam-bride-mother"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================
+     SECTION 3: COUPLE NAME
+     =================================================== -->
+<section id="section-couple" class="section">
+  <div class="section-inner">
+    <div class="couple-display">
+      <div class="couple-glow-ring"></div>
+      <span class="couple-pre reveal">Together in love</span>
+      <div class="couple-big-name reveal delay-1" id="couple-name-display"></div>
+      <div class="couple-subtitle reveal delay-2" id="couple-wedding-date-display"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================
+     SECTION 4: COUNTDOWN
+     =================================================== -->
+<section id="section-countdown" class="section">
+  <div class="section-inner">
+    <div class="section-label reveal">Counting down to forever</div>
+    <div class="ornament reveal delay-1">
+      <div class="ornament-line"></div>
+      <div class="ornament-diamond"></div>
+      <div class="ornament-line right"></div>
+    </div>
+    <div class="countdown-grid reveal delay-2" id="countdown-grid">
+      <div class="countdown-unit">
+        <div class="countdown-box"><div class="countdown-num" id="cd-days">00</div></div>
+        <div class="countdown-label">Days</div>
+      </div>
+      <div class="countdown-colon">:</div>
+      <div class="countdown-unit">
+        <div class="countdown-box"><div class="countdown-num" id="cd-hours">00</div></div>
+        <div class="countdown-label">Hours</div>
+      </div>
+      <div class="countdown-colon">:</div>
+      <div class="countdown-unit">
+        <div class="countdown-box"><div class="countdown-num" id="cd-mins">00</div></div>
+        <div class="countdown-label">Minutes</div>
+      </div>
+      <div class="countdown-colon">:</div>
+      <div class="countdown-unit">
+        <div class="countdown-box"><div class="countdown-num" id="cd-secs">00</div></div>
+        <div class="countdown-label">Seconds</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================
+     SECTION 5: MESSAGE
+     =================================================== -->
+<section id="section-message" class="section">
+  <div class="section-inner">
+    <div class="section-label reveal">A message from the couple</div>
+    <div class="message-quote reveal delay-1">
+      <span class="message-open-quote">"</span>
+      <div class="message-text" id="message-text"></div>
+      <span class="message-close-quote">"</span>
+    </div>
+    <div class="message-sig reveal delay-2" id="message-sig"></div>
+  </div>
+</section>
+
+<!-- ===================================================
+     SECTION 6: LOCATION
+     =================================================== -->
+<section id="section-map" class="section">
+  <div class="section-inner">
+    <div class="section-label reveal">Join us here</div>
+    <div class="ornament reveal delay-1">
+      <div class="ornament-line"></div>
+      <div class="ornament-diamond"></div>
+      <div class="ornament-line right"></div>
+    </div>
+    <div class="venue-name-display reveal delay-2" id="venue-display"></div>
+    <div class="venue-sub reveal delay-3" id="venue-address"></div>
+    <a class="open-location-btn reveal delay-3" id="location-btn" href="#" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+      </svg>
+      Open Location
+    </a>
+  </div>
+</section>
+
+<!-- ===================================================
+     SECTION 7: RSVP
+     =================================================== -->
+<section id="section-rsvp" class="section">
+  <div class="section-inner">
+    <div class="section-label reveal">Will you join us?</div>
+    <div class="ornament reveal delay-1">
+      <div class="ornament-line"></div>
+      <div class="ornament-diamond"></div>
+      <div class="ornament-line right"></div>
+    </div>
+
+    <div class="rsvp-success" id="rsvp-success">
+      <div class="rsvp-success-icon">&#x1F4E8;</div>
+      <h3>Thank You</h3>
+      <p>Your RSVP has been received. We look forward to celebrating with you.</p>
+    </div>
+
+    <form class="rsvp-form reveal delay-2" id="rsvp-form" onsubmit="handleRSVP(event)">
+      <div class="rsvp-field">
+        <label class="rsvp-label">Your Name</label>
+        <input type="text" class="rsvp-input" id="rsvp-name" placeholder="Full name" required autocomplete="name" />
+      </div>
+      <div class="rsvp-field">
+        <label class="rsvp-label">Phone Number</label>
+        <input type="tel" class="rsvp-input" id="rsvp-phone" placeholder="+971 50 000 0000" autocomplete="tel" />
+      </div>
+      <div class="rsvp-field">
+        <label class="rsvp-label">Will you attend?</label>
+        <div class="rsvp-attendance">
+          <div class="attendance-option">
+            <input type="radio" name="attendance" id="att-yes" value="yes" required />
+            <label class="attendance-label" for="att-yes">Joyfully Accept</label>
+          </div>
+          <div class="attendance-option">
+            <input type="radio" name="attendance" id="att-no" value="no" />
+            <label class="attendance-label" for="att-no">Regretfully Decline</label>
+          </div>
+        </div>
+      </div>
+      <button type="submit" class="rsvp-submit" id="rsvp-btn">Send RSVP</button>
+    </form>
+  </div>
+</section>
+
+<!-- ===================================================
+     SECTION 8: FOOTER
+     =================================================== -->
+<footer id="section-footer">
+  <div class="footer-brand">InviSend</div>
+  <div class="footer-tagline">Wedding Invitation Platform</div>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="js/supabase.js"></script>
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let invData        = null;
+let musicPlaying   = false;
+let musicMuted     = false;
+let hasInteracted  = false;
+const audio        = document.getElementById('bgm');
+
+// ═══════════════════════════════════════════════════════════
+// BOOTSTRAP
+// ═══════════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  const slug = new URLSearchParams(window.location.search).get('slug');
+  if (!slug) { showError('No invitation slug provided.'); return; }
+
+  // Start music on first touch/click
+  document.addEventListener('click',  onFirstInteract, { once: true });
+  document.addEventListener('touchend', onFirstInteract, { once: true });
+
+  try {
+    const data = await getInvitationBySlug(slug);
+    if (!data) { showError('Invitation not found.'); return; }
+    invData = data;
+
+    document.title = (data.couple_name || 'Wedding') + ' — Invitation';
+    // Increment view counter (non-blocking)
+    incrementViewCount(data.slug);
+    applyTemplate(data.template_id || 1);
+
+    populateHero(data);
+    populateFamily(data);
+    populateCouple(data);
+    populateMessage(data);
+    populateLocation(data);
+    startCountdown(data.wedding_date);
+    initMusic(data);
+
+    if (data.status === 'paused') {
+      document.getElementById('expired-overlay').querySelector('.expired-title').textContent = 'Invitation Paused';
+      document.getElementById('expired-overlay').querySelector('.expired-sub').textContent = 'This invitation is temporarily unavailable. Please check back later.';
+      document.getElementById('expired-overlay').classList.add('show');
+    } else if (isExpired(data.expiry_date)) {
+      document.getElementById('expired-overlay').classList.add('show');
+    }
+
+    initSlider();
+    initScrollReveal();
+    if ((data.template_id || 1) === 3) initParticles();
+    initHeroBgZoom();
+    drawThemeVectors(data.template_id || 1);
+
+    setTimeout(() => document.getElementById('page-loader').classList.add('hidden'), 900);
+
+  } catch(err) {
+    showError('Failed to load: ' + err.message);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
+// TEMPLATE
+// ═══════════════════════════════════════════════════════════
+function applyTemplate(id) {
+  document.body.className = 't' + id;
+}
+
+// ═══════════════════════════════════════════════════════════
+// VECTOR BG PER THEME
+// ═══════════════════════════════════════════════════════════
+function drawThemeVectors(tid) {
+  const wrap = document.getElementById('hero-vector-bg');
+  if (!wrap) return;
+
+  const svgs = {
+    1: `<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;position:absolute;inset:0;opacity:.07">
+          <defs><radialGradient id="rg1" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#d4af37" stop-opacity=".6"/><stop offset="100%" stop-color="#d4af37" stop-opacity="0"/></radialGradient></defs>
+          <ellipse cx="400" cy="300" rx="340" ry="260" fill="url(#rg1)"/>
+          <path d="M200 100 Q400 60 600 100 Q620 300 600 500 Q400 540 200 500 Q180 300 200 100Z" fill="none" stroke="#d4af37" stroke-width=".5" opacity=".4"/>
+          <path d="M240 130 Q400 95 560 130 Q580 300 560 470 Q400 505 240 470 Q220 300 240 130Z" fill="none" stroke="#d4af37" stroke-width=".3" opacity=".25"/>
+          <line x1="130" y1="0" x2="130" y2="600" stroke="#d4af37" stroke-width=".3" opacity=".12"/>
+          <line x1="670" y1="0" x2="670" y2="600" stroke="#d4af37" stroke-width=".3" opacity=".12"/>
+          <circle cx="400" cy="300" r="6" fill="#d4af37" opacity=".3"/>
+          <circle cx="400" cy="300" r="14" fill="none" stroke="#d4af37" stroke-width=".5" opacity=".2"/>
+        </svg>`,
+    2: `<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;position:absolute;inset:0;opacity:.06">
+          <defs><radialGradient id="rg2" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#7a8e68" stop-opacity=".5"/><stop offset="100%" stop-color="#7a8e68" stop-opacity="0"/></radialGradient></defs>
+          <ellipse cx="400" cy="300" rx="300" ry="220" fill="url(#rg2)"/>
+          <path d="M100 580 Q200 500 300 560 Q400 520 500 560 Q600 500 700 580" fill="none" stroke="#7a8e68" stroke-width=".8" opacity=".5"/>
+          <path d="M60 560 Q160 480 260 540 Q360 500 460 540 Q560 480 660 560 Q730 520 800 550" fill="none" stroke="#7a8e68" stroke-width=".5" opacity=".3"/>
+          <ellipse cx="80" cy="200" rx="50" ry="70" fill="none" stroke="#7a8e68" stroke-width=".4" opacity=".3"/>
+          <ellipse cx="720" cy="160" rx="42" ry="60" fill="none" stroke="#7a8e68" stroke-width=".4" opacity=".3"/>
+          <circle cx="400" cy="60" r="4" fill="#7a8e68" opacity=".25"/>
+          <path d="M390 60 Q400 40 410 60 Q400 80 390 60Z" fill="#7a8e68" opacity=".2"/>
+        </svg>`,
+    3: `<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;position:absolute;inset:0;opacity:.08">
+          <defs><radialGradient id="rg3" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#c8922a" stop-opacity=".5"/><stop offset="100%" stop-color="#7a1830" stop-opacity="0"/></radialGradient></defs>
+          <ellipse cx="400" cy="300" rx="320" ry="240" fill="url(#rg3)"/>
+          <path d="M400 40 L420 90 L480 90 L430 125 L450 180 L400 145 L350 180 L370 125 L320 90 L380 90Z" fill="none" stroke="#c8922a" stroke-width=".6" opacity=".5"/>
+          <path d="M400 60 L414 100 L460 100 L424 124 L438 166 L400 142 L362 166 L376 124 L340 100 L386 100Z" fill="none" stroke="#c8922a" stroke-width=".3" opacity=".25"/>
+          <path d="M80 200 Q100 180 120 200 Q100 220 80 200Z" fill="#c8922a" opacity=".2"/>
+          <path d="M680 200 Q700 180 720 200 Q700 220 680 200Z" fill="#c8922a" opacity=".2"/>
+          <circle cx="160" cy="480" r="3" fill="#c8922a" opacity=".25"/>
+          <circle cx="640" cy="460" r="3" fill="#c8922a" opacity=".25"/>
+          <path d="M100 300 Q150 250 200 300 Q150 350 100 300Z" fill="none" stroke="#c8922a" stroke-width=".4" opacity=".2"/>
+          <path d="M600 300 Q650 250 700 300 Q650 350 600 300Z" fill="none" stroke="#c8922a" stroke-width=".4" opacity=".2"/>
+        </svg>`
+  };
+  wrap.innerHTML = svgs[tid] || svgs[1];
+}
+
+// ═══════════════════════════════════════════════════════════
+// HERO POPULATION
+// ═══════════════════════════════════════════════════════════
+function populateHero(d) {
+  if (d.background_image_url) {
+    document.getElementById('hero-bg').style.backgroundImage = "url('" + d.background_image_url + "')";
+  } else {
+    const bgs = {
+      1: 'linear-gradient(160deg,#3a1800 0%,#7a5200 50%,#3a1800 100%)',
+      2: 'linear-gradient(160deg,#c5d4ac 0%,#8fae7a 50%,#c5d4ac 100%)',
+      3: 'linear-gradient(160deg,#2a0810 0%,#7a2018 50%,#1a0408 100%)',
+    };
+    document.getElementById('hero-bg').style.background = bgs[d.template_id || 1];
+  }
+
+  const bride = document.getElementById('figure-bride');
+  const groom = document.getElementById('figure-groom');
+  if (d.bride_image_url) { bride.src = d.bride_image_url; bride.style.display = 'block'; }
+  else bride.style.display = 'none';
+  if (d.groom_image_url) { groom.src = d.groom_image_url; groom.style.display = 'block'; }
+  else groom.style.display = 'none';
+
+  // Reveal card
+  const parts = d.couple_name.split(/[&+,]/);
+  const p1 = (parts[0] || '').trim();
+  const p2 = (parts[1] || '').trim();
+
+  document.getElementById('hero-reveal-name').innerHTML =
+    p2 ? p1 + '<span class="hero-reveal-amp">&amp;</span>' + p2 : d.couple_name;
+  document.getElementById('hero-reveal-date').textContent = formatDate(d.wedding_date);
+
+  // Couple photo reveal card — use dedicated couple photo if uploaded, else thumbnails
+  const photosWrap = document.getElementById('hero-reveal-photos');
+  if (d.couple_image_url) {
+    photosWrap.innerHTML =
+      '<div class="hero-reveal-couple-img-wrap">' +
+      '<img src="' + d.couple_image_url + '" alt="Couple" class="hero-reveal-couple-img" loading="lazy" /></div>';
+  } else if (d.bride_image_url || d.groom_image_url) {
+    let thumbs = '';
+    if (d.bride_image_url) thumbs += '<div class="hero-reveal-photo-item"><img src="' + d.bride_image_url + '" alt="Bride" loading="lazy" /></div>';
+    if (d.groom_image_url) thumbs += '<div class="hero-reveal-photo-item"><img src="' + d.groom_image_url + '" alt="Groom" loading="lazy" /></div>';
+    photosWrap.innerHTML = thumbs;
+  }
+}
+
+function populateFamily(d) {
+  document.getElementById('fam-groom-father').textContent = d.groom_father || 'Father';
+  document.getElementById('fam-groom-mother').textContent = d.groom_mother || 'Mother';
+  document.getElementById('fam-bride-father').textContent = d.bride_father || 'Father';
+  document.getElementById('fam-bride-mother').textContent = d.bride_mother || 'Mother';
+}
+
+function populateCouple(d) {
+  const names = d.couple_name.split(/[&+,]/);
+  const p1 = (names[0] || '').trim();
+  const p2 = (names[1] || '').trim();
+  const el = document.getElementById('couple-name-display');
+  el.innerHTML = p2
+    ? p1 + '<span class="couple-ampersand">&amp;</span>' + p2
+    : d.couple_name;
+  document.getElementById('couple-wedding-date-display').textContent = formatDateTime(d.wedding_date);
+}
+
+function populateMessage(d) {
+  document.getElementById('message-text').textContent =
+    d.message || 'We warmly invite you to share in our joy as we begin our journey together.';
+  document.getElementById('message-sig').textContent = d.couple_name;
+}
+
+function populateLocation(d) {
+  document.getElementById('venue-display').textContent = d.venue || '';
+  document.getElementById('venue-address').textContent = d.venue || '';
+
+  const btn = document.getElementById('location-btn');
+  if (d.maps_url) {
+    btn.href = d.maps_url;
+    btn.style.display = 'inline-flex';
+  } else if (d.venue) {
+    btn.href = 'https://maps.google.com/maps?q=' + encodeURIComponent(d.venue);
+    btn.style.display = 'inline-flex';
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// SLIDER SYSTEM
+// ═══════════════════════════════════════════════════════════
+// ── Global so skip button can call it ────────────────────────
+let _sliderComplete = false;
+function completeSlider() {
+  if (_sliderComplete) return;
+  _sliderComplete = true;
+  const fill  = document.getElementById('swipe-fill');
+  const thumb = document.getElementById('swipe-thumb');
+  const container = document.getElementById('slider-container');
+  const card  = document.getElementById('hero-reveal-card');
+  const burst = document.getElementById('sparkle-burst');
+
+  // Animate fill to 100%
+  if (fill)  fill.style.width = '100%';
+  if (thumb) {
+    const track = document.querySelector('.swipe-track');
+    if (track) thumb.style.left = (track.offsetWidth - 52) + 'px';
+  }
+
+  showSparklesGlobal();
+  setTimeout(() => {
+    if (card) card.classList.add('visible');
+  }, 250);
+  setTimeout(() => {
+    if (container) container.style.opacity = '0';
+    setTimeout(() => { if (container) container.style.display = 'none'; }, 400);
+    document.getElementById('section-family')?.scrollIntoView({ behavior: 'smooth' });
+  }, 1800);
+}
+
+function showSparklesGlobal() {
+  const burst = document.getElementById('sparkle-burst');
+  const svg   = document.getElementById('sparkle-svg');
+  if (!burst || !svg) return;
+  const gold = getComputedStyle(document.body).getPropertyValue('--gold').trim() || '#d4af37';
+  const pts  = [[60,14],[88,32],[96,62],[84,90],[60,106],[36,90],[24,62],[32,32],[54,14]];
+  svg.innerHTML = pts.map((p,i) =>
+    `<line x1="60" y1="60" x2="${p[0]}" y2="${p[1]}" stroke="${gold}" stroke-width="1.6" stroke-linecap="round">` +
+    `<animate attributeName="opacity" values="0;.85;0" dur=".9s" begin="${i*.06}s" fill="freeze"/>` +
+    `<animate attributeName="x2" values="60;${p[0]}" dur=".42s" begin="${i*.06}s" fill="freeze"/>` +
+    `<animate attributeName="y2" values="60;${p[1]}" dur=".42s" begin="${i*.06}s" fill="freeze"/></line>`
+  ).join('');
+  burst.style.opacity = '1';
+  setTimeout(() => { burst.style.opacity = '0'; }, 1200);
+}
+
+function initSlider() {
+  const slider    = document.getElementById('swipe-slider');
+  const fill      = document.getElementById('swipe-fill');
+  const thumb     = document.getElementById('swipe-thumb');
+  const bride     = document.getElementById('figure-bride');
+  const groom     = document.getElementById('figure-groom');
+
+  if (!slider || !thumb) return;
+
+  const isMob  = window.innerWidth < 700;
+  const START_B = isMob ? -68 : -72;
+  const START_G = isMob ?  68 :  72;
+  const END_B   = isMob ?  -9 :  -8;
+  const END_G   = isMob ?   9 :   8;
+
+  const THUMB_W = 56;
+  let   dragging  = false;
+  let   startX    = 0;
+  let   currentPct = 0;
+
+  function lerp(a,b,t){ return a + (b-a)*t; }
+
+  function setProgress(pct) {
+    pct = Math.max(0, Math.min(100, pct));
+    currentPct = pct;
+    const trackW   = slider.offsetWidth - THUMB_W;
+    const thumbPos = (pct / 100) * trackW;
+
+    fill.style.width  = (pct / 100 * slider.offsetWidth) + 'px';
+    thumb.style.left  = thumbPos + 'px';
+
+    const t = pct / 100;
+    if (bride) bride.style.transform = `translateX(${lerp(START_B,END_B,t)}%)`;
+    if (groom) groom.style.transform = `translateX(${lerp(START_G,END_G,t)}%)`;
+
+    if (pct >= 96 && !_sliderComplete) completeSlider();
+  }
+
+  // Touch events
+  thumb.addEventListener('touchstart', e => {
+    dragging = true;
+    startX = e.touches[0].clientX;
+    thumb.style.transition = 'none';
+    fill.style.transition  = 'none';
+    e.preventDefault();
+  }, { passive: false });
+
+  document.addEventListener('touchmove', e => {
+    if (!dragging || _sliderComplete) return;
+    const trackW = slider.offsetWidth - THUMB_W;
+    const dx     = e.touches[0].clientX - startX;
+    const thumbPos = (currentPct / 100) * trackW;
+    const newPos   = Math.max(0, Math.min(trackW, thumbPos + dx));
+    setProgress((newPos / trackW) * 100);
+    startX = e.touches[0].clientX;
+    e.preventDefault();
+  }, { passive: false });
+
+  document.addEventListener('touchend', () => { dragging = false; });
+
+  // Mouse events (desktop)
+  thumb.addEventListener('mousedown', e => {
+    dragging = true;
+    startX = e.clientX;
+    thumb.style.transition = 'none';
+    fill.style.transition  = 'none';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!dragging || _sliderComplete) return;
+    const trackW = slider.offsetWidth - THUMB_W;
+    const dx     = e.clientX - startX;
+    const thumbPos = (currentPct / 100) * trackW;
+    const newPos   = Math.max(0, Math.min(trackW, thumbPos + dx));
+    setProgress((newPos / trackW) * 100);
+    startX = e.clientX;
+  });
+  document.addEventListener('mouseup', () => {
+    dragging = false;
+    thumb.style.transition = '';
+    fill.style.transition  = '';
+  });
+
+  // Click anywhere on track
+  slider.addEventListener('click', e => {
+    if (e.target === thumb || _sliderComplete) return;
+    const rect = slider.getBoundingClientRect();
+    const pct  = ((e.clientX - rect.left) / rect.width) * 100;
+    setProgress(pct);
+  });
+
+  // Auto-hint after 3s on mobile
+  if (isMob) {
+    setTimeout(() => {
+      if (!_sliderComplete && currentPct < 5) {
+        thumb.style.transition = 'left .6s ease';
+        fill.style.transition  = 'width .6s ease';
+        setProgress(15);
+        setTimeout(() => {
+          thumb.style.transition = '';
+          fill.style.transition  = '';
+          if (!_sliderComplete) setProgress(0);
+        }, 700);
+      }
+    }, 3000);
+  }
+
+  setProgress(0);
+}
+
+function initHeroBgZoom() {
+  setTimeout(() => document.getElementById('hero-bg').classList.add('zoomed'), 120);
+}
+
+// ═══════════════════════════════════════════════════════════
+// COUNTDOWN
+// ═══════════════════════════════════════════════════════════
+function startCountdown(targetDate) {
+  const target = new Date(targetDate).getTime();
+  const prevVals = {};
+
+  function tick() {
+    const diff = target - Date.now();
+    if (diff <= 0) {
+      document.getElementById('countdown-grid').innerHTML =
+        '<div class="countdown-done">The celebration is today</div>';
+      return;
+    }
+    const days  = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const mins  = Math.floor((diff % 3600000) / 60000);
+    const secs  = Math.floor((diff % 60000) / 1000);
+    [['cd-days',days],['cd-hours',hours],['cd-mins',mins],['cd-secs',secs]].forEach(([id, n]) => {
+      const val = String(n).padStart(2,'0');
+      const el  = document.getElementById(id);
+      if (el && prevVals[id] !== val) {
+        el.textContent = val;
+        el.classList.remove('flip');
+        void el.offsetWidth;
+        el.classList.add('flip');
+        prevVals[id] = val;
+      }
+    });
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+// ═══════════════════════════════════════════════════════════
+// SCROLL REVEAL
+// ═══════════════════════════════════════════════════════════
+function initScrollReveal() {
+  const els = document.querySelectorAll('.reveal, .section-label');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12 });
+  els.forEach(el => obs.observe(el));
+}
+
+// ═══════════════════════════════════════════════════════════
+// RSVP
+// ═══════════════════════════════════════════════════════════
+async function handleRSVP(e) {
+  e.preventDefault();
+  if (!invData) return;
+  const btn = document.getElementById('rsvp-btn');
+  btn.disabled = true;
+  btn.textContent = 'Checking...';
+  const phone      = document.getElementById('rsvp-phone').value.trim();
+  const attendance = (document.querySelector('input[name="attendance"]:checked') || {}).value || 'yes';
+  try {
+    // Duplicate check
+    if (phone) {
+      const isDupe = await checkDuplicateRSVP(invData.slug, phone);
+      if (isDupe) {
+        btn.disabled = false;
+        btn.textContent = 'Send RSVP';
+        document.getElementById('rsvp-form').style.display = 'none';
+        const succ = document.getElementById('rsvp-success');
+        succ.querySelector('h3').textContent = 'Already Submitted';
+        succ.querySelector('p').textContent  = 'We already have your RSVP. Thank you!';
+        succ.classList.add('show');
+        return;
+      }
+    }
+    btn.textContent = 'Sending...';
+    await submitRSVP({
+      invitation_slug: invData.slug,
+      guest_name:  document.getElementById('rsvp-name').value.trim(),
+      phone:       document.getElementById('rsvp-phone').value.trim(),
+      attendance,
+    });
+    document.getElementById('rsvp-form').style.display = 'none';
+    document.getElementById('rsvp-success').classList.add('show');
+  } catch(err) {
+    btn.disabled = false;
+    btn.textContent = 'Send RSVP';
+    alert('RSVP failed: ' + err.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// MUSIC
+// ═══════════════════════════════════════════════════════════
+function initMusic(d) {
+  if (!d.bgm_url) return;
+  audio.src = d.bgm_url;
+  audio.volume = 0.55;
+  document.getElementById('music-player').classList.add('visible');
+
+  audio.addEventListener('canplay', () => {
+    if (hasInteracted) startMusic();
+  }, { once: true });
+}
+
+function onFirstInteract() {
+  hasInteracted = true;
+  if (audio.src && !musicPlaying) startMusic();
+}
+
+function startMusic() {
+  const p = audio.play();
+  if (p) p.then(() => setPlayState(true)).catch(() => setPlayState(false));
+}
+
+function toggleMusic() {
+  if (musicPlaying) { audio.pause(); setPlayState(false); }
+  else { audio.play().then(() => setPlayState(true)).catch(() => {}); }
+}
+
+function setPlayState(playing) {
+  musicPlaying = playing;
+  document.getElementById('music-icon-play').style.display  = playing ? 'none'  : 'block';
+  document.getElementById('music-icon-pause').style.display = playing ? 'block' : 'none';
+  document.getElementById('music-label').textContent        = playing ? 'Now playing' : 'Music';
+}
+
+function toggleMute() {
+  musicMuted   = !musicMuted;
+  audio.muted  = musicMuted;
+  document.getElementById('mute-icon-on').style.display  = musicMuted ? 'none'  : 'block';
+  document.getElementById('mute-icon-off').style.display = musicMuted ? 'block' : 'none';
+}
+
+// ═══════════════════════════════════════════════════════════
+// PARTICLES (T3)
+// ═══════════════════════════════════════════════════════════
+function initParticles() {
+  const canvas = document.getElementById('particle-canvas');
+  const ctx    = canvas.getContext('2d');
+  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+  const particles = Array.from({ length: 65 }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 1.4 + 0.25,
+    vx: (Math.random() - 0.5) * 0.25,
+    vy: -(Math.random() * 0.35 + 0.08),
+    pulse: Math.random() * Math.PI * 2,
+  }));
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.pulse += 0.018;
+      const a = 0.25 + Math.sin(p.pulse) * 0.22;
+      p.x += p.vx; p.y += p.vy;
+      if (p.y < -8)               { p.y = canvas.height + 8; p.x = Math.random() * canvas.width; }
+      if (p.x < -8)               p.x = canvas.width + 8;
+      if (p.x > canvas.width + 8) p.x = -8;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(200,146,42,' + a + ')';
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ═══════════════════════════════════════════════════════════
+// ERROR
+// ═══════════════════════════════════════════════════════════
+function showError(msg) {
+  document.getElementById('page-loader').innerHTML =
+    '<div style="text-align:center;padding:40px;max-width:380px">' +
+    '<div style="font-family:Cormorant Garamond,serif;font-size:24px;color:#d4af37;margin-bottom:12px">Invitation Not Found</div>' +
+    '<div style="font-size:13px;color:rgba(255,255,255,0.4);line-height:1.65">' + msg + '</div>' +
+    '</div>';
+}
+</script>
+</body>
+</html>

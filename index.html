@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InviSend — Admin Dashboard</title>
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='28'>💍</text></svg>" />
+</head>
+
+<!-- ── Admin Auth ─────────────────────────────────────── -->
+<div id="auth-wall" style="
+  position:fixed;inset:0;z-index:99999;
+  background:#080b10;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:0;
+  font-family:'DM Sans',sans-serif;
+">
+  <style>
+    #auth-wall *{box-sizing:border-box}
+    .auth-box{
+      width:min(380px,92vw);
+      background:#0f1318;
+      border:1px solid rgba(212,175,55,.25);
+      border-radius:14px;
+      padding:40px 36px;
+      text-align:center;
+    }
+    .auth-logo{
+      font-family:'Georgia',serif;font-size:26px;
+      font-style:italic;color:#d4af37;
+      margin-bottom:6px;letter-spacing:.04em;
+    }
+    .auth-sub{
+      font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+      color:rgba(255,255,255,.3);margin-bottom:32px;
+    }
+    .auth-label{
+      display:block;text-align:left;
+      font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+      color:rgba(255,255,255,.4);margin-bottom:8px;
+    }
+    .auth-input{
+      width:100%;padding:12px 16px;
+      background:#141a22;
+      border:1px solid rgba(255,255,255,.07);
+      border-radius:8px;color:#f0ece4;
+      font-size:15px;font-family:inherit;
+      outline:none;transition:border-color .25s;
+      letter-spacing:.06em;
+    }
+    .auth-input:focus{border-color:rgba(212,175,55,.4)}
+    .auth-btn{
+      width:100%;margin-top:20px;padding:13px;
+      background:linear-gradient(135deg,#d4af37,#f0d060);
+      border:none;border-radius:8px;
+      font-family:inherit;font-size:14px;font-weight:500;
+      color:#080b10;cursor:pointer;
+      transition:opacity .2s,transform .2s;
+      letter-spacing:.06em;
+    }
+    .auth-btn:hover{opacity:.9;transform:translateY(-1px)}
+    .auth-btn:active{transform:translateY(0)}
+    .auth-error{
+      margin-top:14px;font-size:12px;
+      color:#e05252;opacity:0;
+      transition:opacity .25s;
+      min-height:18px;
+    }
+    .auth-error.show{opacity:1}
+  </style>
+  <div class="auth-box">
+    <div class="auth-logo">&#128141; InviSend</div>
+    <div class="auth-sub">Admin Dashboard</div>
+    <label class="auth-label" for="auth-pw">Password</label>
+    <input class="auth-input" type="password" id="auth-pw"
+           placeholder="Enter admin password"
+           onkeydown="if(event.key==='Enter')checkAuth()"
+           autocomplete="current-password" autofocus />
+    <button class="auth-btn" onclick="checkAuth()">Enter Dashboard</button>
+    <div class="auth-error" id="auth-error">Incorrect password. Please try again.</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // SHA-256 hash of 'I@mfc!sm@S'
+  const CORRECT_HASH = '7155703dd712ab839b9ead7c8afdd0e54038efce897e08f926a7e6d837aefa09';
+
+  async function sha256(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  }
+
+  function sessionOk() {
+    const stored = sessionStorage.getItem('inv_auth_hash');
+    return stored && stored === CORRECT_HASH;
+  }
+
+  async function checkAuth() {
+    const val = document.getElementById('auth-pw').value;
+    if (!val) return;
+    const hash = await sha256(val);
+    if (hash === CORRECT_HASH) {
+      sessionStorage.setItem('inv_auth_hash', hash);
+      document.getElementById('auth-wall').style.display = 'none';
+      document.getElementById('auth-pw').value = '';
+    } else {
+      const err = document.getElementById('auth-error');
+      err.classList.add('show');
+      document.getElementById('auth-pw').value = '';
+      document.getElementById('auth-pw').focus();
+      // Brief delay so brute force is slower
+      setTimeout(() => err.classList.remove('show'), 3000);
+    }
+  }
+
+  window.checkAuth = checkAuth;
+
+  if (sessionOk()) {
+    document.getElementById('auth-wall').style.display = 'none';
+  }
+})();
+</script>
+
+<div class="admin-layout">
+
+  <!-- ── Sidebar ────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">💍 InviSend</div>
+      <div class="logo-sub">Wedding Invitation Platform</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
+
+      <button class="nav-item active" onclick="showView('dashboard')" id="nav-dashboard">
+        <span class="icon">📊</span> Dashboard
+      </button>
+
+      <button class="nav-item" onclick="showView('create')" id="nav-create">
+        <span class="icon">✨</span> Create Invitation
+      </button>
+
+      <button class="nav-item" onclick="showView('invitations')" id="nav-invitations">
+        <span class="icon">📋</span> All Invitations
+      </button>
+
+      <div class="nav-section">System</div>
+
+      <button class="nav-item" onclick="showView('testimonials')" id="nav-testimonials">
+        <span class="icon">&#9733;</span> Testimonials
+      </button>
+
+      <button class="nav-item" onclick="showView('rsvp')" id="nav-rsvp">
+        <span class="icon">💌</span> RSVP Responses
+      </button>
+
+      <button class="nav-item" onclick="showSetupView()" id="nav-setup">
+        <span class="icon">⚙️</span> Supabase Setup
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      InviSend v1.0 · Secured
+    </div>
+  </aside>
+
+  <!-- ── Top Bar ────────────────────────────────────── -->
+  <header class="topbar">
+    <div class="topbar-title" id="topbar-title">Dashboard</div>
+    <div class="topbar-actions">
+      <button class="btn btn-primary btn-sm" onclick="showView('create')">
+        New Invitation
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Main Content ───────────────────────────────── -->
+  <main class="main-content" id="main-content">
+
+    <!-- ══ DASHBOARD VIEW ════════════════════════════ -->
+    <div id="view-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Invitations</div>
+          <div class="stat-value" id="stat-total">—</div>
+          <div class="stat-sub">All time</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Live</div>
+          <div class="stat-value" id="stat-live">—</div>
+          <div class="stat-sub">Currently active</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Expired</div>
+          <div class="stat-value" id="stat-expired">—</div>
+          <div class="stat-sub">Past weddings</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">RSVP Received</div>
+          <div class="stat-value" id="stat-rsvp">—</div>
+          <div class="stat-sub">Across all events</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Views</div>
+          <div class="stat-value" id="stat-views">—</div>
+          <div class="stat-sub">Invitation page opens</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Recent Invitations</div>
+          <button class="btn btn-secondary btn-sm" onclick="showView('invitations')">View All</button>
+        </div>
+        <div class="panel-body">
+          <div class="table-wrap">
+            <table id="dash-table">
+              <thead>
+                <tr>
+                  <th>Couple</th>
+                  <th>Slug</th>
+                  <th>Template</th>
+                  <th>Wedding Date</th>
+                  <th>Views</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="dash-tbody">
+                <tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:40px">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CREATE INVITATION VIEW ════════════════════ -->
+    <div id="view-create" style="display:none">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title" id="form-panel-title">✨ Create New Invitation</div>
+        </div>
+        <div class="panel-body">
+          <form id="invitation-form" onsubmit="handleFormSubmit(event)">
+            <input type="hidden" id="edit-id" />
+
+            <!-- Section 1: Basic Info -->
+            <div class="form-section-title">💍 Basic Information</div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Couple Name *</label>
+                <input type="text" id="couple_name" placeholder="e.g. Sarah & James" required />
+              </div>
+              <div class="form-group">
+                <label>Slug (URL Key) *</label>
+                <div class="input-row">
+                  <input type="text" id="slug" placeholder="e.g. sarah-james-2025" required
+                         pattern="[a-z0-9\-]+" title="Lowercase letters, numbers, hyphens only" />
+                  <button type="button" class="btn btn-secondary" onclick="autoSlug()">⟳ Auto</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top:16px">
+              <label>Template Style *</label>
+              <div class="template-selector">
+                <label class="template-option t1 selected" onclick="selectTemplate(1)">
+                  <input type="radio" name="template_id" value="1" checked />
+                  <div class="template-thumb">🌅</div>
+                  <div class="template-name">Western Luxury</div>
+                  <div class="template-desc">Deep gold, crimson, ivory</div>
+                </label>
+                <label class="template-option t2" onclick="selectTemplate(2)">
+                  <input type="radio" name="template_id" value="2" />
+                  <div class="template-thumb">🌿</div>
+                  <div class="template-name">Modern Elegant</div>
+                  <div class="template-desc">Sage green, soft white</div>
+                </label>
+                <label class="template-option t3" onclick="selectTemplate(3)">
+                  <input type="radio" name="template_id" value="3" />
+                  <div class="template-thumb">✨</div>
+                  <div class="template-name">Traditional Elegant</div>
+                  <div class="template-desc">Dark glow + particles</div>
+                </label>
+              </div>
+            </div>
+
+            <hr class="section-divider" />
+
+            <!-- Section 2: Bride Family -->
+            <div class="form-section-title">👰 Bride's Family</div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Bride's Father Name *</label>
+                <input type="text" id="bride_father" placeholder="e.g. Mr. Robert Smith" required />
+              </div>
+              <div class="form-group">
+                <label>Bride's Mother Name *</label>
+                <input type="text" id="bride_mother" placeholder="e.g. Mrs. Linda Smith" required />
+              </div>
+            </div>
+
+            <hr class="section-divider" />
+
+            <!-- Section 3: Groom Family -->
+            <div class="form-section-title">🤵 Groom's Family</div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Groom's Father Name *</label>
+                <input type="text" id="groom_father" placeholder="e.g. Mr. David Johnson" required />
+              </div>
+              <div class="form-group">
+                <label>Groom's Mother Name *</label>
+                <input type="text" id="groom_mother" placeholder="e.g. Mrs. Mary Johnson" required />
+              </div>
+            </div>
+
+            <hr class="section-divider" />
+
+            <!-- Section 4: Event Details -->
+            <div class="form-section-title">Event Details</div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Wedding Date &amp; Time *</label>
+                <input type="datetime-local" id="wedding_date" required />
+              </div>
+              <div class="form-group">
+                <label>Venue / Location *</label>
+                <input type="text" id="venue" placeholder="e.g. The Grand Ballroom, Dubai" required />
+              </div>
+              <div class="form-group span-2">
+                <label>Google Maps Link</label>
+                <input type="url" id="maps_url" placeholder="https://maps.google.com/maps?q=..." />
+                <span style="font-size:11px;color:var(--text-muted);margin-top:4px;display:block">
+                  Paste a Google Maps share link. Guests click "Open Location" to navigate.
+                </span>
+              </div>
+              <div class="form-group span-2">
+                <label>Personal Message</label>
+                <textarea id="message" placeholder="Write a heartfelt message for your guests..."></textarea>
+              </div>
+            </div>
+
+            <hr class="section-divider" />
+
+            <!-- Section 5: Media Upload -->
+            <div class="form-section-title">Media Upload</div>
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px">
+              Upload PNG images with transparent backgrounds for best results. Max 5MB each.
+            </p>
+            <div class="upload-grid" style="grid-template-columns:repeat(2,1fr)">
+              <div>
+                <label style="display:block;margin-bottom:8px">Bride Photo (PNG cutout)</label>
+                <div class="upload-zone" id="zone-bride" onclick="triggerUpload('file-bride')">
+                  <input type="file" id="file-bride" accept="image/*" onchange="handleFileSelect('bride', this)" />
+                  <img class="upload-preview" id="prev-bride" src="" alt="" />
+                  <div class="upload-icon">&#128106;</div>
+                  <div class="upload-label">Click to upload</div>
+                  <div class="upload-hint">PNG with transparency</div>
+                  <div class="upload-progress" id="prog-bride"></div>
+                </div>
+              </div>
+              <div>
+                <label style="display:block;margin-bottom:8px">Groom Photo (PNG cutout)</label>
+                <div class="upload-zone" id="zone-groom" onclick="triggerUpload('file-groom')">
+                  <input type="file" id="file-groom" accept="image/*" onchange="handleFileSelect('groom', this)" />
+                  <img class="upload-preview" id="prev-groom" src="" alt="" />
+                  <div class="upload-icon">&#128110;</div>
+                  <div class="upload-label">Click to upload</div>
+                  <div class="upload-hint">PNG with transparency</div>
+                  <div class="upload-progress" id="prog-groom"></div>
+                </div>
+              </div>
+              <div>
+                <label style="display:block;margin-bottom:8px">Background Image</label>
+                <div class="upload-zone" id="zone-bg" onclick="triggerUpload('file-bg')">
+                  <input type="file" id="file-bg" accept="image/*" onchange="handleFileSelect('bg', this)" />
+                  <img class="upload-preview" id="prev-bg" src="" alt="" />
+                  <div class="upload-icon">&#127749;</div>
+                  <div class="upload-label">Click to upload</div>
+                  <div class="upload-hint">JPG/PNG landscape</div>
+                  <div class="upload-progress" id="prog-bg"></div>
+                </div>
+              </div>
+              <div>
+                <label style="display:block;margin-bottom:8px">
+                  Couple Photo
+                  <span style="font-size:10px;color:var(--gold);margin-left:6px;font-weight:400">Shown on slider reveal</span>
+                </label>
+                <div class="upload-zone" id="zone-couple" onclick="triggerUpload('file-couple')">
+                  <input type="file" id="file-couple" accept="image/*" onchange="handleFileSelect('couple', this)" />
+                  <img class="upload-preview" id="prev-couple" src="" alt="" />
+                  <div class="upload-icon">&#128145;</div>
+                  <div class="upload-label">Click to upload</div>
+                  <div class="upload-hint">JPG/PNG together photo</div>
+                  <div class="upload-progress" id="prog-couple"></div>
+                </div>
+              </div>
+            </div>
+
+            <hr class="section-divider" />
+
+            <!-- Section 5b: Background Music -->
+            <div class="form-section-title">Background Music (Optional)</div>
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px">
+              Upload an MP3 or audio file. Guests hear it on their invitation page with play/mute controls.
+            </p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
+              <div>
+                <label style="display:block;margin-bottom:8px;font-size:11px;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase">Audio File (MP3 / OGG)</label>
+                <div class="upload-zone" id="zone-bgm" onclick="triggerUpload('file-bgm')" style="padding:20px 16px">
+                  <input type="file" id="file-bgm" accept="audio/*" onchange="handleFileSelect('bgm', this)" />
+                  <div class="upload-icon" id="bgm-icon" style="font-size:22px">&#127925;</div>
+                  <div class="upload-label" id="bgm-label">Click to upload audio</div>
+                  <div class="upload-hint">MP3, OGG, WAV up to 10MB</div>
+                  <div class="upload-progress" id="prog-bgm"></div>
+                </div>
+              </div>
+              <div style="padding-top:32px;font-size:12px;color:var(--text-muted);line-height:1.8">
+                <p>Music autoplays on page load (where browser allows).</p>
+                <p style="margin-top:8px">A minimal play/pause + mute control appears on the invitation page.</p>
+                <p style="margin-top:8px;color:var(--text-dim)">Leave empty for no music.</p>
+              </div>
+            </div>
+
+            <!-- Hidden URL fields populated after upload -->
+            <input type="hidden" id="bride_image_url" />
+            <input type="hidden" id="groom_image_url" />
+            <input type="hidden" id="background_image_url" />
+            <input type="hidden" id="couple_image_url" />
+            <input type="hidden" id="bgm_url" />
+
+            <hr class="section-divider" />
+
+            <div style="display:flex;gap:12px;justify-content:flex-end">
+              <button type="button" class="btn btn-secondary" onclick="resetForm()">Cancel</button>
+              <button type="button" class="btn btn-secondary" id="preview-btn" onclick="openPreview()">
+                &#128065; Preview
+              </button>
+              <button type="submit" class="btn btn-primary" id="submit-btn">
+                Generate Invitation
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ALL INVITATIONS VIEW ═══════════════════════ -->
+    <div id="view-invitations" style="display:none">
+      <div class="view-header">
+        <div></div>
+        <button class="btn btn-secondary btn-sm" onclick="loadInvitations()">⟳ Refresh</button>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">All Invitations</div>
+          <span class="badge badge-live" id="inv-count">0 total</span>
+        </div>
+        <div class="panel-body" style="padding:0">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Couple</th>
+                  <th>Slug</th>
+                  <th>Template</th>
+                  <th>Wedding Date</th>
+                  <th>Expiry</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="inv-tbody">
+                <tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:40px">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ RSVP VIEW ══════════════════════════════════ -->
+    <div id="view-rsvp" style="display:none">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">RSVP Responses</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <select id="rsvp-filter-slug" onchange="loadRSVPs()" style="width:200px">
+              <option value="">— All Invitations —</option>
+            </select>
+            <button class="btn btn-secondary btn-sm" onclick="loadRSVPs()">&#8635; Refresh</button>
+            <button class="btn btn-primary btn-sm" id="rsvp-pdf-btn" onclick="downloadRSVPpdf()" style="display:none">
+              &#8595; Download PDF
+            </button>
+          </div>
+        </div>
+        <div class="panel-body" style="padding:0">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Guest Name</th>
+                  <th>Phone</th>
+                  <th>Invitation</th>
+                  <th>Attendance</th>
+                  <th>Submitted</th>
+                </tr>
+              </thead>
+              <tbody id="rsvp-tbody">
+                <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:40px">Select an invitation to view RSVPs</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ══ TESTIMONIALS VIEW ══════════════════════════ -->
+    <div id="view-testimonials" style="display:none">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">&#11088; Testimonials</div>
+          <span class="badge badge-live" id="t-count">0 uploaded</span>
+        </div>
+        <div class="panel-body">
+          <!-- Upload zone -->
+          <div style="margin-bottom:28px">
+            <div class="form-section-title" style="font-size:14px;margin-bottom:12px">Upload Testimonial Screenshot</div>
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">
+              Upload screenshots of reviews (WhatsApp, Google, etc). JPG or PNG up to 5MB.
+            </p>
+            <div style="display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap">
+              <div class="upload-zone" id="zone-testimonial" onclick="document.getElementById('file-testimonial').click()" style="width:200px;flex-shrink:0">
+                <input type="file" id="file-testimonial" accept="image/*" multiple onchange="handleTestimonialUpload(this)" style="display:none" />
+                <div class="upload-icon" style="font-size:24px">&#128247;</div>
+                <div class="upload-label">Click to upload</div>
+                <div class="upload-hint">JPG / PNG screenshot</div>
+                <div class="upload-progress" id="prog-testimonial"></div>
+              </div>
+              <div style="font-size:12px;color:var(--text-muted);line-height:1.9;padding-top:8px">
+                <p>You can upload multiple screenshots at once.</p>
+                <p style="margin-top:6px">Each image is stored in Supabase and shown on the landing page.</p>
+                <p style="margin-top:6px;color:var(--text-dim)">Click any testimonial below to delete it.</p>
+              </div>
+            </div>
+          </div>
+          <!-- Gallery -->
+          <div class="form-section-title" style="font-size:14px;margin-bottom:14px">Uploaded Testimonials</div>
+          <div id="testimonials-admin-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px">
+            <div style="text-align:center;padding:40px;color:var(--text-dim);grid-column:1/-1;font-size:13px">Loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SETUP VIEW ═════════════════════════════════ -->
+    <div id="view-setup" style="display:none">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Setup Guide Guide</div>
+        </div>
+        <div class="panel-body">
+          <p style="color:var(--text-muted);margin-bottom:24px;font-size:13px">
+            Run the following SQL in your Supabase SQL Editor to create the required tables and storage bucket.
+          </p>
+
+          <div class="form-section-title">Step 1: Create Tables</div>
+          <pre style="background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;padding:20px;font-size:12px;color:var(--gold-light);overflow-x:auto;line-height:1.7"><code>-- INVITATIONS TABLE
+CREATE TABLE invitations (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  slug TEXT UNIQUE NOT NULL,
+  template_id INTEGER DEFAULT 1 CHECK (template_id IN (1,2,3)),
+  status TEXT DEFAULT 'live' CHECK (status IN ('live','expired')),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  expiry_date TIMESTAMPTZ,
+  couple_name TEXT NOT NULL,
+  bride_father TEXT,
+  bride_mother TEXT,
+  groom_father TEXT,
+  groom_mother TEXT,
+  wedding_date TIMESTAMPTZ NOT NULL,
+  venue TEXT,
+  message TEXT,
+  bride_image_url TEXT,
+  groom_image_url TEXT,
+  background_image_url TEXT,
+  couple_image_url TEXT
+);
+
+-- RSVP TABLE
+CREATE TABLE rsvp (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  invitation_slug TEXT REFERENCES invitations(slug) ON DELETE CASCADE,
+  guest_name TEXT NOT NULL,
+  phone TEXT,
+  attendance TEXT CHECK (attendance IN ('yes','no')),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- TESTIMONIALS TABLE
+CREATE TABLE testimonials (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  image_url TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE testimonials ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public read testimonials" ON testimonials FOR SELECT USING (true);
+CREATE POLICY "Public insert testimonials" ON testimonials FOR INSERT WITH CHECK (true);
+CREATE POLICY "Public delete testimonials" ON testimonials FOR DELETE USING (true);
+
+-- Enable Row Level Security (RLS) - public read
+ALTER TABLE invitations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE rsvp ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public read invitations" ON invitations FOR SELECT USING (true);
+CREATE POLICY "Public insert invitations" ON invitations FOR INSERT WITH CHECK (true);
+CREATE POLICY "Public update invitations" ON invitations FOR UPDATE USING (true);
+CREATE POLICY "Public delete invitations" ON invitations FOR DELETE USING (true);
+
+CREATE POLICY "Public read rsvp" ON rsvp FOR SELECT USING (true);
+CREATE POLICY "Public insert rsvp" ON rsvp FOR INSERT WITH CHECK (true);</code></pre>
+
+          <div class="form-section-title" style="margin-top:24px">Step 2: Create Storage Bucket</div>
+          <pre style="background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;padding:20px;font-size:12px;color:var(--gold-light);overflow-x:auto;line-height:1.7"><code>-- Create storage bucket (also do via Dashboard > Storage > New Bucket)
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('wedding-media', 'wedding-media', true);
+
+-- Allow public uploads
+CREATE POLICY "Public uploads" ON storage.objects
+  FOR INSERT WITH CHECK (bucket_id = 'wedding-media');
+
+CREATE POLICY "Public reads" ON storage.objects
+  FOR SELECT USING (bucket_id = 'wedding-media');</code></pre>
+
+          <div class="form-section-title" style="margin-top:24px">Step 3: Google Maps Embed</div>
+          <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;padding:20px;font-size:13px;color:var(--text-muted);line-height:1.8">
+            <p>The invitation page uses <strong style="color:var(--text-primary)">Google Maps Embed API (free tier)</strong> — no API key required for basic embeds.</p>
+            <p style="margin-top:8px">The venue name you enter is automatically encoded into the embed URL like:<br>
+            <code style="color:var(--gold);font-size:12px">https://maps.google.com/maps?q=YOUR+VENUE&output=embed</code></p>
+            <p style="margin-top:8px">✅ This works without any API key for public embeds.</p>
+          </div>
+
+          <div style="margin-top:24px;display:flex;gap:12px">
+            <button class="btn btn-primary" onclick="testConnection()">🔗 Test Connection</button>
+          </div>
+          <div id="connection-status" style="margin-top:16px;font-size:13px"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+
+<!-- ── Preview Modal ─────────────────────────────────────── -->
+<div class="modal-backdrop" id="preview-modal">
+  <div class="modal" style="max-width:860px;width:96vw;padding:0;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--gold)">Invitation Preview</div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <span style="font-size:11px;color:var(--text-muted)">Unsaved data shown</span>
+        <button class="btn-icon" onclick="closePreview()">&#10005;</button>
+      </div>
+    </div>
+    <div style="position:relative;width:100%;height:70vh;background:#0a0a0a">
+      <iframe id="preview-iframe" style="width:100%;height:100%;border:none;display:block" title="Invitation Preview"></iframe>
+      <div id="preview-loading" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0a0a0a;gap:14px">
+        <div class="spinner" style="width:32px;height:32px;border-width:2px"></div>
+        <p style="color:var(--text-muted);font-size:13px">Loading preview...</p>
+      </div>
+    </div>
+    <div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-secondary btn-sm" onclick="closePreview()">Close</button>
+      <button class="btn btn-primary btn-sm" onclick="closePreview();document.getElementById('invitation-form').dispatchEvent(new Event('submit'))">Save &amp; Publish</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Success Modal ──────────────────────────────────────── -->
+<div class="modal-backdrop" id="success-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🎉 Invitation Created!</div>
+      <button class="btn-icon" onclick="closeModal()">✕</button>
+    </div>
+    <p style="color:var(--text-muted);font-size:14px;margin-bottom:20px">
+      Your wedding invitation is live and ready to share!
+    </p>
+    <div>
+      <div style="font-size:11px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px">Invitation URL</div>
+      <div class="link-box">
+        <span class="link-url" id="modal-link"></span>
+        <button class="btn btn-secondary btn-sm" onclick="copyModalLink()">📋 Copy</button>
+      </div>
+    </div>
+    <div style="margin-top:20px;display:flex;gap:10px">
+      <a class="btn btn-primary" id="modal-open-btn" href="#" target="_blank">🚀 Open Invitation</a>
+      <button class="btn btn-secondary" onclick="closeModal()">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast Container ────────────────────────────────────── -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ── Loading Overlay ────────────────────────────────────── -->
+<div class="loading-overlay" id="loading-overlay">
+  <div class="spinner"></div>
+  <p id="loading-text">Processing...</p>
+</div>
+
+<!-- ── Scripts ────────────────────────────────────────────── -->
+<script src="js/config.js"></script>
+<script src="js/supabase.js"></script>
+<script>
+
+// ══ State ════════════════════════════════════════════════════
+let currentView = 'dashboard';
+let selectedTemplate = 1;
+let pendingUploads = { bride: null, groom: null, bg: null, couple: null };
+let uploadedURLs = { bride: '', groom: '', bg: '', couple: '' };
+
+// ══ View Management ══════════════════════════════════════════
+
+function showView(view) {
+  document.querySelectorAll('[id^="view-"]').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById(`view-${view}`).style.display = 'block';
+  document.getElementById(`nav-${view}`)?.classList.add('active');
+  const titles = {
+    dashboard: 'Dashboard', create: 'Create Invitation',
+    invitations: 'All Invitations', rsvp: 'RSVP Responses', testimonials: 'Testimonials', setup: 'Setup Guide'
+  };
+  document.getElementById('topbar-title').textContent = titles[view] || view;
+  currentView = view;
+
+  if (view === 'dashboard') loadDashboard();
+  if (view === 'invitations') loadInvitations();
+  if (view === 'rsvp') loadRSVPView();
+  if (view === 'testimonials') loadTestimonialsAdmin();
+}
+
+function showSetupView() {
+  showView('setup');
+  document.getElementById('nav-setup').classList.add('active');
+}
+
+// ══ Dashboard ════════════════════════════════════════════════
+
+async function loadDashboard() {
+  try {
+    const invs = await getAllInvitations();
+    const live = invs.filter(i => !isExpired(i.expiry_date)).length;
+    const expired = invs.filter(i => isExpired(i.expiry_date)).length;
+
+    document.getElementById('stat-total').textContent = invs.length;
+    document.getElementById('stat-live').textContent = live;
+    document.getElementById('stat-expired').textContent = expired;
+
+    // RSVP count across all
+    let rsvpTotal = 0;
+    try {
+      const rsvps = await sbFetch('rsvp?select=id');
+      rsvpTotal = rsvps.length;
+    } catch(e) {}
+    document.getElementById('stat-rsvp').textContent = rsvpTotal;
+    // Total views across all
+    const totalViews = invs.reduce((s, i) => s + (i.view_count || 0), 0);
+    const viewEl = document.getElementById('stat-views');
+    if (viewEl) viewEl.textContent = totalViews;
+
+    renderInvTable('dash-tbody', invs.slice(0, 5));
+  } catch(e) {
+    toast('Failed to load dashboard: ' + e.message, 'error');
+  }
+}
+
+// ══ Invitations Table ════════════════════════════════════════
+
+async function loadInvitations() {
+  try {
+    const invs = await getAllInvitations();
+    document.getElementById('inv-count').textContent = `${invs.length} total`;
+    renderInvTable('inv-tbody', invs, true);
+  } catch(e) {
+    toast('Failed to load invitations: ' + e.message, 'error');
+  }
+}
+
+const TEMPLATE_NAMES = { 1: '🌅 Golden', 2: '🌿 Minimal', 3: '✨ Cinematic' };
+
+function renderInvTable(tbodyId, invs, full = false) {
+  const tbody = document.getElementById(tbodyId);
+  if (!invs.length) {
+    tbody.innerHTML = `<tr><td colspan="${full ? 7 : 6}">
+      <div class="empty-state">
+        <div class="icon">💍</div>
+        <h3>No Invitations Yet</h3>
+        <p>Create your first wedding invitation to get started.</p>
+        <button class="btn btn-primary btn-sm" onclick="showView('create')">Create Now</button>
+      </div>
+    </td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = invs.map(inv => {
+    const expired = isExpired(inv.expiry_date);
+    const status = expired ? 'expired' : 'live';
+    const baseURL = window.location.origin + window.location.pathname.replace('index.html','').replace(/\/$/, '');
+    const link = `${baseURL}/invite.html?slug=${inv.slug}`;
+
+    return `<tr>
+      <td><strong>${escHtml(inv.couple_name)}</strong></td>
+      <td class="td-muted">${escHtml(inv.slug)}</td>
+      <td>${TEMPLATE_NAMES[inv.template_id] || inv.template_id}</td>
+      <td class="td-muted">${formatDate(inv.wedding_date)}</td>
+      <td class="td-muted" style="text-align:center">${inv.view_count || 0}</td>
+      ${full ? `<td class="td-muted">${formatDate(inv.expiry_date)}</td>` : ''}
+      <td>
+        <span class="badge badge-${status}">
+          <span class="badge-dot"></span> ${status}
+        </span>
+      </td>
+      <td>
+        <div class="actions-cell">
+          <a class="btn-icon" href="${link}" target="_blank" title="View">👁️</a>
+          <button class="btn-icon" onclick="copyLink('${link}')" title="Copy Link">📋</button>
+          <button class="btn-icon" onclick="downloadRSVPpdfBySlug('${inv.slug}','${escHtml(inv.couple_name)}')" title="Download RSVP PDF" style="color:var(--gold)">&#8595;</button>
+          <button class="btn-icon" onclick="toggleStatus('${inv.id}','${inv.status || 'live'}')" title="${(inv.status === 'paused') ? 'Resume' : 'Pause'}" style="color:${(inv.status === 'paused') ? 'var(--success)' : 'var(--text-muted)'}">${(inv.status === 'paused') ? '&#9654;' : '&#10074;&#10074;'}</button>
+          <button class="btn-icon" onclick="editInvitation('${inv.id}')" title="Edit">&#9998;</button>
+          <button class="btn-icon" style="color:var(--danger)" onclick="deleteInv('${inv.id}','${escHtml(inv.couple_name)}')" title="Delete">&#128465;</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ══ RSVP View ════════════════════════════════════════════════
+
+async function loadRSVPView() {
+  try {
+    const invs = await getAllInvitations();
+    const sel = document.getElementById('rsvp-filter-slug');
+    sel.innerHTML = '<option value="">— All RSVPs —</option>' +
+      invs.map(i => `<option value="${i.slug}">${escHtml(i.couple_name)} (${i.slug})</option>`).join('');
+    await loadRSVPs();
+  } catch(e) {
+    toast('Failed to load RSVP view: ' + e.message, 'error');
+  }
+}
+
+async function loadRSVPs() {
+  const slug = document.getElementById('rsvp-filter-slug').value;
+  const pdfBtn = document.getElementById('rsvp-pdf-btn');
+  if (pdfBtn) pdfBtn.style.display = slug ? 'inline-flex' : 'none';
+  const tbody = document.getElementById('rsvp-tbody');
+  tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:30px"><div class="spinner"></div></td></tr>`;
+  try {
+    const path = slug
+      ? `rsvp?invitation_slug=eq.${encodeURIComponent(slug)}&order=created_at.desc&select=*`
+      : `rsvp?order=created_at.desc&select=*`;
+    const rsvps = await sbFetch(path);
+
+    if (!rsvps.length) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:40px">No RSVPs yet for this invitation.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = rsvps.map(r => `<tr>
+      <td><strong>${escHtml(r.guest_name)}</strong></td>
+      <td class="td-muted">${escHtml(r.phone || '—')}</td>
+      <td class="td-muted">${escHtml(r.invitation_slug)}</td>
+      <td>
+        <span class="badge" style="${r.attendance === 'yes'
+          ? 'background:rgba(76,175,130,0.15);color:#4caf82;border:1px solid rgba(76,175,130,0.25)'
+          : 'background:rgba(224,82,82,0.1);color:#e05252;border:1px solid rgba(224,82,82,0.2)'}">
+          ${r.attendance === 'yes' ? '✅ Attending' : '❌ Not Attending'}
+        </span>
+      </td>
+      <td class="td-muted">${new Date(r.created_at).toLocaleDateString()}</td>
+    </tr>`).join('');
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--danger);padding:30px">${e.message}</td></tr>`;
+  }
+}
+
+// ══ Form Handling ════════════════════════════════════════════
+
+function selectTemplate(id) {
+  selectedTemplate = id;
+  document.querySelectorAll('.template-option').forEach(el => el.classList.remove('selected'));
+  document.querySelector(`.t${id}`).classList.add('selected');
+  document.querySelector(`input[name="template_id"][value="${id}"]`).checked = true;
+}
+
+function autoSlug() {
+  const name = document.getElementById('couple_name').value;
+  if (!name) { toast('Enter a couple name first', 'info'); return; }
+  document.getElementById('slug').value = generateSlug(name);
+}
+
+function triggerUpload(inputId) {
+  // The click is propagated from the zone — avoid double-trigger
+}
+
+function handleFileSelect(type, input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { toast('File too large (max 5MB)', 'error'); return; }
+  pendingUploads[type] = file;
+
+  // Preview
+  const reader = new FileReader();
+  reader.onload = e => {
+    const zoneId = { bride: 'zone-bride', groom: 'zone-groom', bg: 'zone-bg', couple: 'zone-couple' }[type];
+    const prevId = { bride: 'prev-bride', groom: 'prev-groom', bg: 'prev-bg', couple: 'prev-couple' }[type];
+    document.getElementById(prevId).src = e.target.result;
+    document.getElementById(zoneId).classList.add('has-file');
+  };
+  reader.readAsDataURL(file);
+  toast(`${type.charAt(0).toUpperCase()+type.slice(1)} image ready to upload`, 'info');
+}
+
+async function uploadPendingFiles(slug) {
+  const types = ['bride', 'groom', 'bg', 'couple'];
+  for (const type of types) {
+    if (pendingUploads[type]) {
+      const prog = document.getElementById(`prog-${type}`);
+      if (prog) prog.style.width = '50%';
+      try {
+        const folder = { bride: 'brides', groom: 'grooms', bg: 'backgrounds', couple: 'couples' }[type];
+        const url = await uploadFile(pendingUploads[type], `${folder}/${slug}`);
+        uploadedURLs[type] = url;
+        if (prog) prog.style.width = '100%';
+      } catch(e) {
+        toast(`Upload failed for ${type}: ${e.message}`, 'error');
+        if (prog) prog.style.width = '0';
+      }
+    }
+  }
+}
+
+async function handleFormSubmit(e) {
+  e.preventDefault();
+  const editId = document.getElementById('edit-id').value;
+  const btn = document.getElementById('submit-btn');
+
+  showLoading(editId ? 'Updating invitation...' : 'Uploading media & saving...');
+  btn.disabled = true;
+
+  try {
+    const slug = document.getElementById('slug').value.trim();
+
+    // Upload files first
+    await uploadPendingFiles(slug);
+
+    const payload = {
+      slug,
+      template_id: selectedTemplate,
+      couple_name: document.getElementById('couple_name').value.trim(),
+      bride_father: document.getElementById('bride_father').value.trim(),
+      bride_mother: document.getElementById('bride_mother').value.trim(),
+      groom_father: document.getElementById('groom_father').value.trim(),
+      groom_mother: document.getElementById('groom_mother').value.trim(),
+      wedding_date: document.getElementById('wedding_date').value,
+      venue: document.getElementById('venue').value.trim(),
+      message: document.getElementById('message').value.trim(),
+      bride_image_url: uploadedURLs.bride || document.getElementById('bride_image_url').value,
+      groom_image_url: uploadedURLs.groom || document.getElementById('groom_image_url').value,
+      background_image_url: uploadedURLs.bg || document.getElementById('background_image_url').value,
+      couple_image_url: uploadedURLs.couple || document.getElementById('couple_image_url').value,
+    };
+
+    if (!editId) {
+      payload.expiry_date = expiryFromWedding(payload.wedding_date);
+      payload.status = 'live';
+    }
+
+    if (editId) {
+      await updateInvitation(editId, payload);
+      toast('Invitation updated successfully!', 'success');
+    } else {
+      await createInvitation(payload);
+    }
+
+    const baseURL = window.location.origin + window.location.pathname.replace('index.html','').replace(/\/$/, '');
+    const link = `${baseURL}/invite.html?slug=${slug}`;
+
+    if (!editId) {
+      document.getElementById('modal-link').textContent = link;
+      document.getElementById('modal-open-btn').href = link;
+      openModal();
+    }
+
+    resetForm();
+  } catch(e) {
+    toast('Error: ' + e.message, 'error');
+  } finally {
+    hideLoading();
+    btn.disabled = false;
+  }
+}
+
+async function editInvitation(id) {
+  showLoading('Loading invitation data...');
+  try {
+    const data = await sbFetch(`invitations?id=eq.${id}&select=*&limit=1`);
+    const inv = data[0];
+    if (!inv) { toast('Invitation not found', 'error'); return; }
+
+    showView('create');
+    document.getElementById('form-panel-title').textContent = '✏️ Edit Invitation';
+    document.getElementById('submit-btn').textContent = 'Save Changes';
+    document.getElementById('edit-id').value = inv.id;
+    document.getElementById('couple_name').value = inv.couple_name || '';
+    document.getElementById('slug').value = inv.slug || '';
+    document.getElementById('bride_father').value = inv.bride_father || '';
+    document.getElementById('bride_mother').value = inv.bride_mother || '';
+    document.getElementById('groom_father').value = inv.groom_father || '';
+    document.getElementById('groom_mother').value = inv.groom_mother || '';
+    document.getElementById('wedding_date').value = inv.wedding_date?.slice(0,16) || '';
+    document.getElementById('venue').value = inv.venue || '';
+    document.getElementById('message').value = inv.message || '';
+    document.getElementById('bride_image_url').value = inv.bride_image_url || '';
+    document.getElementById('groom_image_url').value = inv.groom_image_url || '';
+    document.getElementById('background_image_url').value = inv.background_image_url || '';
+    document.getElementById('couple_image_url').value = inv.couple_image_url || '';
+
+    if (inv.bride_image_url) {
+      document.getElementById('prev-bride').src = inv.bride_image_url;
+      document.getElementById('zone-bride').classList.add('has-file');
+    }
+    if (inv.groom_image_url) {
+      document.getElementById('prev-groom').src = inv.groom_image_url;
+      document.getElementById('zone-groom').classList.add('has-file');
+    }
+    if (inv.background_image_url) {
+      document.getElementById('prev-bg').src = inv.background_image_url;
+      document.getElementById('zone-bg').classList.add('has-file');
+    }
+    if (inv.couple_image_url) {
+      document.getElementById('prev-couple').src = inv.couple_image_url;
+      document.getElementById('zone-couple').classList.add('has-file');
+    }
+
+    selectTemplate(inv.template_id || 1);
+  } catch(e) {
+    toast('Error loading: ' + e.message, 'error');
+  } finally {
+    hideLoading();
+  }
+}
+
+async function deleteInv(id, name) {
+  if (!confirm(`Delete invitation for "${name}"? This cannot be undone.`)) return;
+  try {
+    await deleteInvitation(id);
+    toast('Invitation deleted', 'success');
+    if (currentView === 'dashboard') loadDashboard();
+    else loadInvitations();
+  } catch(e) {
+    toast('Delete failed: ' + e.message, 'error');
+  }
+}
+
+function resetForm() {
+  document.getElementById('invitation-form').reset();
+  document.getElementById('edit-id').value = '';
+  document.getElementById('form-panel-title').textContent = '✨ Create New Invitation';
+  document.getElementById('submit-btn').textContent = 'Generate Invitation';
+  document.getElementById('submit-btn').disabled = false;
+  ['bride', 'groom', 'bg', 'couple'].forEach(t => {
+    document.getElementById(`zone-${t}`)?.classList.remove('has-file');
+    document.getElementById(`prog-${t}`).style.width = '0';
+  });
+  pendingUploads = { bride: null, groom: null, bg: null, couple: null };
+  uploadedURLs = { bride: '', groom: '', bg: '', couple: '' };
+  selectTemplate(1);
+  showView('dashboard');
+}
+
+// ══ Connection Test ═══════════════════════════════════════════
+
+async function testConnection() {
+  const el = document.getElementById('connection-status');
+  el.innerHTML = '<div class="spinner" style="display:inline-block"></div> Testing...';
+  try {
+    await getAllInvitations();
+    el.innerHTML = '<span style="color:var(--success)">✅ Connection successful! Supabase is properly configured.</span>';
+  } catch(e) {
+    el.innerHTML = `<span style="color:var(--danger)">❌ Connection failed: ${e.message}</span>`;
+  }
+}
+
+// ══ Utilities ════════════════════════════════════════════════
+
+function copyLink(link) {
+  navigator.clipboard.writeText(link).then(() => toast('Link copied!', 'success'));
+}
+
+function copyModalLink() {
+  const link = document.getElementById('modal-link').textContent;
+  navigator.clipboard.writeText(link).then(() => toast('Link copied!', 'success'));
+}
+
+function openModal() {
+  document.getElementById('success-modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('success-modal').classList.remove('open');
+}
+
+function showLoading(text = 'Processing...') {
+  document.getElementById('loading-text').textContent = text;
+  document.getElementById('loading-overlay').classList.add('show');
+}
+
+function hideLoading() {
+  document.getElementById('loading-overlay').classList.remove('show');
+}
+
+function toast(msg, type = 'info') {
+  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span>${icons[type]}</span><span>${msg}</span>`;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+
+
+
+
+// ══ PREVIEW ═══════════════════════════════════════════════════
+function openPreview() {
+  const slug = document.getElementById('slug').value.trim();
+  if (!slug) { toast('Enter a slug first', 'info'); return; }
+
+  const modal   = document.getElementById('preview-modal');
+  const iframe  = document.getElementById('preview-iframe');
+  const loading = document.getElementById('preview-loading');
+
+  loading.style.display = 'flex';
+  modal.classList.add('open');
+
+  const baseURL = window.location.origin + window.location.pathname.replace('index.html','').replace(/\/$/, '');
+  iframe.src = `${baseURL}/invite.html?slug=${encodeURIComponent(slug)}&preview=1`;
+  iframe.onload = () => { loading.style.display = 'none'; };
+}
+function closePreview() {
+  document.getElementById('preview-modal').classList.remove('open');
+  document.getElementById('preview-iframe').src = '';
+}
+
+// ══ STATUS TOGGLE ════════════════════════════════════════════
+async function toggleStatus(id, currentStatus) {
+  const newStatus = currentStatus === 'paused' ? 'live' : 'paused';
+  try {
+    await updateInvitation(id, { status: newStatus });
+    toast(`Invitation ${newStatus === 'live' ? 'resumed' : 'paused'}`, 'success');
+    if (currentView === 'dashboard') loadDashboard();
+    else loadInvitations();
+  } catch(e) {
+    toast('Failed: ' + e.message, 'error');
+  }
+}
+
+// ══ RSVP PDF DOWNLOAD ════════════════════════════════════════
+
+async function downloadRSVPpdf() {
+  const slug = document.getElementById('rsvp-filter-slug').value;
+  if (!slug) { toast('Select a wedding first', 'info'); return; }
+
+  const btn = document.getElementById('rsvp-pdf-btn');
+  btn.disabled = true;
+  btn.textContent = 'Generating...';
+
+  try {
+    // Fetch invitation details
+    const [invArr, rsvps] = await Promise.all([
+      sbFetch(`invitations?slug=eq.${encodeURIComponent(slug)}&select=*&limit=1`),
+      sbFetch(`rsvp?invitation_slug=eq.${encodeURIComponent(slug)}&order=created_at.desc&select=*`)
+    ]);
+    const inv = invArr[0] || {};
+    buildAndDownloadPDF(inv, rsvps, slug);
+  } catch(e) {
+    toast('PDF failed: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '&#8595; Download PDF';
+  }
+}
+
+// Also callable from invitations table row
+async function downloadRSVPpdfBySlug(slug, coupleName) {
+  try {
+    showLoading('Generating RSVP PDF...');
+    const [invArr, rsvps] = await Promise.all([
+      sbFetch(`invitations?slug=eq.${encodeURIComponent(slug)}&select=*&limit=1`),
+      sbFetch(`rsvp?invitation_slug=eq.${encodeURIComponent(slug)}&order=created_at.desc&select=*`)
+    ]);
+    const inv = invArr[0] || { couple_name: coupleName, slug };
+    buildAndDownloadPDF(inv, rsvps, slug);
+  } catch(e) {
+    toast('PDF failed: ' + e.message, 'error');
+  } finally {
+    hideLoading();
+  }
+}
+
+function buildAndDownloadPDF(inv, rsvps, slug) {
+  const attending    = rsvps.filter(r => r.attendance === 'yes').length;
+  const notAttending = rsvps.filter(r => r.attendance === 'no').length;
+  const total        = rsvps.length;
+  const generatedAt  = new Date().toLocaleString('en-US', {
+    weekday:'long', year:'numeric', month:'long', day:'numeric',
+    hour:'2-digit', minute:'2-digit'
+  });
+  const weddingDate  = inv.wedding_date
+    ? new Date(inv.wedding_date).toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})
+    : 'N/A';
+
+  // Build rows HTML
+  const rowsHtml = rsvps.length
+    ? rsvps.map((r, i) => `
+        <tr style="background:${i % 2 === 0 ? '#fff' : '#faf9f7'}">
+          <td style="padding:10px 14px;border-bottom:1px solid #e8e0d0;font-size:13px">${escHtml(r.guest_name || '')}</td>
+          <td style="padding:10px 14px;border-bottom:1px solid #e8e0d0;font-size:13px;color:#666">${escHtml(r.phone || '—')}</td>
+          <td style="padding:10px 14px;border-bottom:1px solid #e8e0d0;font-size:13px;text-align:center">
+            <span style="
+              display:inline-block;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:500;
+              ${r.attendance === 'yes'
+                ? 'background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7'
+                : 'background:#fce4ec;color:#c62828;border:1px solid #ef9a9a'}
+            ">${r.attendance === 'yes' ? 'Attending' : 'Not Attending'}</span>
+          </td>
+          <td style="padding:10px 14px;border-bottom:1px solid #e8e0d0;font-size:12px;color:#999">
+            ${new Date(r.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+          </td>
+        </tr>`).join('')
+    : `<tr><td colspan="4" style="padding:32px;text-align:center;color:#999;font-size:13px">No RSVP responses yet.</td></tr>`;
+
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<title>RSVP List — ${escHtml(inv.couple_name || slug)}</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500&display=swap');
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'DM Sans',sans-serif; background:#fff; color:#1a1a1a; }
+
+  .page { max-width:760px; margin:0 auto; padding:48px 40px; }
+
+  /* Header */
+  .header { text-align:center; padding-bottom:32px; border-bottom:2px solid #c9a84c; margin-bottom:32px; }
+  .brand { font-family:'Cormorant Garamond',serif; font-size:13px; letter-spacing:.22em; text-transform:uppercase; color:#c9a84c; margin-bottom:10px; }
+  .couple { font-family:'Cormorant Garamond',serif; font-size:36px; font-weight:400; font-style:italic; color:#1a1200; line-height:1.1; }
+  .meta { margin-top:10px; font-size:12px; color:#888; line-height:1.8; }
+  .meta span { margin:0 10px; }
+
+  /* Summary cards */
+  .summary { display:flex; gap:16px; margin-bottom:32px; }
+  .card { flex:1; border:1px solid #e8e0d0; border-radius:8px; padding:16px; text-align:center; }
+  .card.gold { border-color:#c9a84c; background:#fffdf5; }
+  .card-num { font-family:'Cormorant Garamond',serif; font-size:36px; font-weight:600; color:#c9a84c; line-height:1; }
+  .card.green .card-num { color:#2e7d32; }
+  .card.red   .card-num { color:#c62828; }
+  .card-label { font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:#999; margin-top:5px; }
+
+  /* Table */
+  .section-title { font-family:'Cormorant Garamond',serif; font-size:18px; color:#1a1200; margin-bottom:14px; font-weight:500; }
+  table { width:100%; border-collapse:collapse; }
+  thead th {
+    padding:10px 14px; text-align:left;
+    background:#1a1200; color:#c9a84c;
+    font-size:10px; letter-spacing:.14em; text-transform:uppercase; font-weight:500;
+  }
+  thead th:nth-child(3) { text-align:center; }
+
+  /* Footer */
+  .footer { margin-top:40px; padding-top:20px; border-top:1px solid #e8e0d0; display:flex; justify-content:space-between; align-items:center; }
+  .footer-brand { font-family:'Cormorant Garamond',serif; font-size:14px; font-style:italic; color:#c9a84c; }
+  .footer-meta { font-size:10px; color:#bbb; }
+
+  @media print {
+    body { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .page { padding:24px; }
+    .no-print { display:none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="brand">InviSend — RSVP Report</div>
+    <div class="couple">${escHtml(inv.couple_name || slug)}</div>
+    <div class="meta">
+      <span>Wedding: ${weddingDate}</span>
+      <span>Venue: ${escHtml(inv.venue || 'N/A')}</span>
+    </div>
+  </div>
+
+  <div class="summary">
+    <div class="card gold">
+      <div class="card-num">${total}</div>
+      <div class="card-label">Total Responses</div>
+    </div>
+    <div class="card green">
+      <div class="card-num">${attending}</div>
+      <div class="card-label">Attending</div>
+    </div>
+    <div class="card red">
+      <div class="card-num">${notAttending}</div>
+      <div class="card-label">Not Attending</div>
+    </div>
+  </div>
+
+  <div class="section-title">Guest List</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Guest Name</th>
+        <th>Phone</th>
+        <th>Attendance</th>
+        <th>Submitted</th>
+      </tr>
+    </thead>
+    <tbody>${rowsHtml}</tbody>
+  </table>
+
+  <div class="footer">
+    <div class="footer-brand">InviSend</div>
+    <div class="footer-meta">Generated: ${generatedAt}</div>
+  </div>
+
+</div>
+<script>window.onload=()=>window.print();<\/script>
+</body>
+</html>`;
+
+  // Open in new window and trigger print-to-PDF
+  const win = window.open('', '_blank', 'width=900,height=700');
+  win.document.write(html);
+  win.document.close();
+  toast('PDF ready — use "Save as PDF" in the print dialog', 'success');
+}
+
+// ══ TESTIMONIALS ═════════════════════════════════════════════
+
+async function loadTestimonialsAdmin() {
+  const grid = document.getElementById('testimonials-admin-grid');
+  const countEl = document.getElementById('t-count');
+  grid.innerHTML = '<div style="text-align:center;padding:30px"><div class="spinner"></div></div>';
+  try {
+    const rows = await sbFetch('testimonials?order=created_at.desc&select=*');
+    countEl.textContent = rows.length + ' uploaded';
+    if (!rows.length) {
+      grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);grid-column:1/-1;font-size:13px">No testimonials yet. Upload your first screenshot above.</div>';
+      return;
+    }
+    grid.innerHTML = rows.map(t => `
+      <div style="position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:var(--bg-panel);cursor:pointer;transition:all .25s"
+           onmouseover="this.querySelector('.t-del').style.opacity='1'"
+           onmouseout="this.querySelector('.t-del').style.opacity='0'">
+        <img src="${t.image_url}" alt="Review" style="width:100%;height:160px;object-fit:cover;display:block" loading="lazy" />
+        <div class="t-del" onclick="deleteTestimonial('${t.id}','${t.image_url}')"
+          style="position:absolute;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s;font-size:12px;color:#e05252;font-weight:500;letter-spacing:.05em">
+          Delete
+        </div>
+      </div>`).join('');
+  } catch(e) {
+    grid.innerHTML = '<div style="text-align:center;padding:30px;color:var(--danger);grid-column:1/-1">' + e.message + '</div>';
+  }
+}
+
+async function handleTestimonialUpload(input) {
+  const files = Array.from(input.files);
+  if (!files.length) return;
+  const prog = document.getElementById('prog-testimonial');
+  const zone = document.getElementById('zone-testimonial');
+  zone.classList.add('has-file');
+  showLoading('Uploading testimonials...');
+  let done = 0;
+  for (const file of files) {
+    if (file.size > 5 * 1024 * 1024) { toast('File too large: ' + file.name, 'error'); continue; }
+    try {
+      if (prog) prog.style.width = ((done / files.length) * 100) + '%';
+      const url = await uploadFile(file, 'testimonials');
+      await sbFetch('testimonials', {
+        method: 'POST',
+        body: JSON.stringify({ image_url: url })
+      });
+      done++;
+      toast('Uploaded ' + done + ' of ' + files.length, 'success');
+    } catch(e) {
+      toast('Upload failed: ' + e.message, 'error');
+    }
+  }
+  if (prog) prog.style.width = '100%';
+  input.value = '';
+  hideLoading();
+  zone.classList.remove('has-file');
+  if (prog) setTimeout(() => { prog.style.width = '0'; }, 800);
+  loadTestimonialsAdmin();
+}
+
+async function deleteTestimonial(id, url) {
+  if (!confirm('Delete this testimonial?')) return;
+  try {
+    await sbFetch('testimonials?id=eq.' + id, { method: 'DELETE', prefer: 'return=minimal' });
+    // Try to delete from storage too (best-effort)
+    const path = url.split('/wedding-media/')[1];
+    if (path) {
+      await fetch(SUPABASE_URL + '/storage/v1/object/wedding-media/' + path, {
+        method: 'DELETE',
+        headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY }
+      }).catch(() => {});
+    }
+    toast('Testimonial deleted', 'success');
+    loadTestimonialsAdmin();
+  } catch(e) {
+    toast('Delete failed: ' + e.message, 'error');
+  }
+}
+
+// ══ Init ═════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  loadDashboard();
+  // Close modal on backdrop click
+  document.getElementById('success-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+});
+
+</script>
+</body>
+</html>
