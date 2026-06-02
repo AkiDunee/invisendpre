@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InviSend — Premium Digital Wedding Invitations</title>
+  <meta name="description" content="Luxury digital wedding invitations delivered to your guests via WhatsApp. Cinematic, elegant, unforgettable." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="icon" href="assets/logo.png" />
+  <style>
+/* ============================================================
+   InviSend Landing Page — Black & Gold Luxury
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:#0a0600;color:#f5ede0;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;display:block}
+a{text-decoration:none;color:inherit}
+
+/* ── CSS Variables ─────────────────────────────────────── */
+:root{
+  --gold:#c9a84c;
+  --gold-light:#e8c96a;
+  --gold-dim:rgba(201,168,76,.12);
+  --gold-border:rgba(201,168,76,.25);
+  --black:#0a0600;
+  --black-card:#110e04;
+  --black-mid:#1a1408;
+  --cream:#f5ede0;
+  --cream-dim:rgba(245,237,224,.55);
+  --cream-faint:rgba(245,237,224,.28);
+  --radius:14px;
+  --transition:all .3s cubic-bezier(.4,0,.2,1);
+}
+
+/* ── Scrollbar ─────────────────────────────────────────── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--black)}
+::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px}
+
+/* ── Scroll reveal ──────────────────────────────────────── */
+.reveal{opacity:0;transform:translateY(40px);transition:opacity .85s ease,transform .85s ease}
+.reveal.up{opacity:1;transform:translateY(0)}
+.reveal.delay-1{transition-delay:.12s}
+.reveal.delay-2{transition-delay:.24s}
+.reveal.delay-3{transition-delay:.36s}
+.reveal.delay-4{transition-delay:.48s}
+.reveal.delay-5{transition-delay:.60s}
+.reveal.delay-6{transition-delay:.72s}
+
+/* ── Shared layout ──────────────────────────────────────── */
+.container{width:100%;max-width:1140px;margin:0 auto;padding:0 clamp(16px,5vw,40px)}
+.section{padding:clamp(72px,10vw,120px) 0;position:relative;overflow:hidden}
+
+.section-label{
+  display:inline-block;
+  font-size:10px;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:14px;
+}
+.section-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(32px,5.5vw,58px);
+  font-weight:400;line-height:1.1;
+  color:var(--cream);
+}
+.section-title em{font-style:italic;color:var(--gold)}
+.section-subtitle{
+  font-size:clamp(14px,1.8vw,16px);
+  color:var(--cream-dim);line-height:1.8;
+  max-width:560px;margin-top:16px;
+}
+.section-center{text-align:center}
+.section-center .section-subtitle{margin:16px auto 0}
+
+/* Ornament divider */
+.ornament{display:flex;align-items:center;justify-content:center;gap:12px;margin:20px 0}
+.ornament-line{flex:1;max-width:80px;height:1px;background:linear-gradient(to right,transparent,var(--gold-border))}
+.ornament-line.r{background:linear-gradient(to left,transparent,var(--gold-border))}
+.ornament-diamond{width:6px;height:6px;background:var(--gold);transform:rotate(45deg)}
+
+/* ── CTA Button ─────────────────────────────────────────── */
+.btn-gold{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:16px 36px;
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(15px,2vw,18px);
+  letter-spacing:.06em;
+  color:#0a0600;
+  background:linear-gradient(135deg,var(--gold),var(--gold-light),var(--gold));
+  background-size:200% 200%;
+  border:none;border-radius:3px;cursor:pointer;
+  transition:var(--transition);
+  box-shadow:0 4px 24px rgba(201,168,76,.28);
+  position:relative;overflow:hidden;
+  white-space:nowrap;
+}
+.btn-gold::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--gold-light),var(--gold));
+  opacity:0;transition:opacity .3s ease;
+}
+.btn-gold:hover::before{opacity:1}
+.btn-gold:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 36px rgba(201,168,76,.45);
+}
+.btn-gold:active{transform:translateY(0)}
+.btn-gold span{position:relative;z-index:1}
+.btn-gold svg{position:relative;z-index:1;flex-shrink:0}
+
+.btn-outline{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:14px 32px;
+  font-family:'Cormorant Garamond',serif;font-size:clamp(14px,2vw,17px);
+  letter-spacing:.06em;color:var(--gold);
+  background:transparent;
+  border:1px solid var(--gold-border);border-radius:3px;cursor:pointer;
+  transition:var(--transition);
+}
+.btn-outline:hover{background:var(--gold-dim);border-color:var(--gold)}
+
+/* ══════════════════════════════════════════════
+   NAV
+   ══════════════════════════════════════════════ */
+#nav{
+  position:fixed;top:0;left:0;right:0;z-index:900;
+  padding:0 clamp(16px,5vw,40px);
+  height:70px;
+  display:flex;align-items:center;justify-content:space-between;
+  transition:background .4s ease,backdrop-filter .4s ease,box-shadow .4s ease;
+}
+#nav.scrolled{
+  background:rgba(10,6,0,.88);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  box-shadow:0 1px 0 var(--gold-border);
+}
+.nav-logo{display:flex;align-items:center;gap:10px}
+.nav-logo img{height:38px;width:auto;object-fit:contain}
+.nav-logo-text{
+  font-family:'Cormorant Garamond',serif;font-size:22px;
+  font-style:italic;color:var(--gold);letter-spacing:.04em;
+}
+.nav-links{display:flex;align-items:center;gap:28px}
+.nav-links a{
+  font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--cream-dim);transition:color .25s;
+}
+.nav-links a:hover{color:var(--gold)}
+.nav-cta{display:none}
+@media(min-width:640px){.nav-cta{display:inline-flex}}
+.nav-mobile-btn{
+  display:none;background:none;border:none;cursor:pointer;
+  flex-direction:column;gap:5px;padding:4px;
+}
+.nav-mobile-btn span{
+  display:block;width:22px;height:1.5px;background:var(--cream);
+  transition:var(--transition);transform-origin:center;
+}
+@media(max-width:768px){
+  .nav-links{display:none}
+  .nav-mobile-btn{display:flex}
+}
+
+/* Mobile nav drawer */
+#mobile-drawer{
+  position:fixed;inset:0;z-index:850;
+  background:rgba(10,6,0,.97);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:32px;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s ease;
+}
+#mobile-drawer.open{opacity:1;pointer-events:all}
+#mobile-drawer a{
+  font-family:'Cormorant Garamond',serif;font-size:28px;
+  color:var(--cream);letter-spacing:.04em;
+  transition:color .25s;
+}
+#mobile-drawer a:hover{color:var(--gold)}
+#mobile-close{
+  position:absolute;top:24px;right:24px;
+  background:none;border:none;cursor:pointer;
+  font-size:28px;color:var(--cream-dim);
+}
+
+/* ══════════════════════════════════════════════
+   HERO
+   ══════════════════════════════════════════════ */
+#hero{
+  position:relative;min-height:100svh;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+.hero-bg{
+  position:absolute;inset:0;z-index:0;
+  background-image:url('assets/hero-bg.jpg');
+  background-size:cover;background-position:center top;
+  transform:scale(1.05);
+  transition:transform 9s ease;
+  animation:heroBgDrift 18s ease infinite alternate;
+}
+@keyframes heroBgDrift{
+  0%{background-position:center top;transform:scale(1.05)}
+  100%{background-position:center center;transform:scale(1.08)}
+}
+.hero-overlay{
+  position:absolute;inset:0;z-index:1;
+  background:
+    linear-gradient(to bottom,rgba(10,6,0,.55) 0%,rgba(10,6,0,.12) 40%,rgba(10,6,0,.72) 85%,rgba(10,6,0,.96) 100%),
+    linear-gradient(to right,rgba(10,6,0,.35) 0%,transparent 50%);
+}
+/* Gold light glow from bottom */
+.hero-glow{
+  position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  width:70%;height:280px;z-index:2;
+  background:radial-gradient(ellipse at bottom,rgba(201,168,76,.15) 0%,transparent 70%);
+  pointer-events:none;
+}
+
+.hero-content{
+  position:relative;z-index:3;
+  text-align:center;
+  padding:120px clamp(16px,5vw,40px) 80px;
+  max-width:860px;margin:0 auto;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:7px 18px;
+  border:1px solid var(--gold-border);border-radius:30px;
+  background:rgba(201,168,76,.06);
+  font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:28px;
+  backdrop-filter:blur(8px);
+}
+.hero-badge span{width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0}
+.hero-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(40px,8.5vw,88px);
+  font-weight:300;line-height:.98;
+  color:#fff;letter-spacing:-.01em;
+  text-shadow:0 2px 40px rgba(0,0,0,.6);
+}
+.hero-title em{
+  display:block;font-style:italic;
+  background:linear-gradient(135deg,var(--gold),var(--gold-light),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero-sub{
+  font-size:clamp(14px,2vw,17px);
+  color:rgba(245,237,224,.65);
+  line-height:1.85;max-width:520px;margin:24px auto 40px;
+}
+.hero-actions{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap}
+.hero-scroll{
+  position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
+  z-index:3;display:flex;flex-direction:column;align-items:center;gap:7px;
+  animation:fadeInUp 1s ease 1.5s both;
+}
+.hero-scroll span{font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.3)}
+.hero-scroll-line{width:1px;height:36px;background:linear-gradient(to bottom,var(--gold),transparent);animation:scrollPulse 2s ease infinite}
+@keyframes scrollPulse{0%,100%{opacity:.3}50%{opacity:1}}
+@keyframes fadeInUp{from{opacity:0;transform:translateX(-50%) translateY(14px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* Floating gold particles */
+.hero-particle{
+  position:absolute;z-index:2;pointer-events:none;
+  width:2px;height:2px;border-radius:50%;background:var(--gold);
+  animation:particleFloat linear infinite;
+}
+@keyframes particleFloat{
+  0%{opacity:0;transform:translateY(0) scale(1)}
+  10%{opacity:.7}
+  90%{opacity:.4}
+  100%{opacity:0;transform:translateY(-120px) scale(.4)}
+}
+
+/* ══════════════════════════════════════════════
+   FEATURES
+   ══════════════════════════════════════════════ */
+#features{background:var(--black-mid)}
+#features::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(to right,transparent,var(--gold-border),transparent);
+}
+#features::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(to right,transparent,var(--gold-border),transparent);
+}
+.features-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));
+  gap:1px;
+  border:1px solid var(--gold-border);
+  border-radius:var(--radius);
+  overflow:hidden;
+  margin-top:56px;
+}
+.feature-card{
+  background:var(--black-card);
+  padding:clamp(28px,4vw,40px) clamp(24px,3vw,36px);
+  position:relative;overflow:hidden;
+  transition:var(--transition);
+}
+.feature-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(to right,transparent,var(--gold),transparent);
+  opacity:0;transition:opacity .3s ease;
+}
+.feature-card:hover{background:#1a1608}
+.feature-card:hover::before{opacity:1}
+.feature-icon{
+  width:48px;height:48px;
+  border:1px solid var(--gold-border);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:20px;
+  background:var(--gold-dim);
+  transition:var(--transition);
+}
+.feature-card:hover .feature-icon{background:rgba(201,168,76,.2);border-color:var(--gold)}
+.feature-icon svg{width:22px;height:22px;stroke:var(--gold);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.feature-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(18px,2.5vw,22px);font-weight:500;
+  color:var(--cream);margin-bottom:10px;
+}
+.feature-desc{font-size:13px;color:var(--cream-dim);line-height:1.75}
+
+/* ══════════════════════════════════════════════
+   THEMES SHOWCASE
+   ══════════════════════════════════════════════ */
+#themes{background:var(--black)}
+.themes-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));
+  gap:20px;margin-top:56px;
+}
+.theme-card{
+  background:var(--black-card);
+  border:1px solid var(--gold-border);
+  border-radius:var(--radius);
+  overflow:hidden;
+  transition:var(--transition);
+  cursor:default;
+}
+.theme-card:hover{transform:translateY(-6px);box-shadow:0 20px 60px rgba(0,0,0,.55),0 0 0 1px var(--gold)}
+.theme-preview{
+  position:relative;height:clamp(180px,28vw,260px);overflow:hidden;
+}
+.theme-preview-inner{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .6s ease;
+}
+.theme-card:hover .theme-preview-inner{transform:scale(1.04)}
+/* T1 Western Luxury */
+.tp1{background:linear-gradient(160deg,#2a1200 0%,#7a5200 40%,#2a1200 100%)}
+/* T2 Modern Minimal */
+.tp2{background:linear-gradient(160deg,#c5d4ac 0%,#8fae7a 50%,#c5d4ac 100%)}
+/* T3 Traditional Elegant */
+.tp3{background:linear-gradient(160deg,#2a0810 0%,#7a2018 50%,#1a0408 100%)}
+
+.theme-mockup{
+  font-family:'Cormorant Garamond',serif;
+  text-align:center;padding:20px;
+}
+.tp1 .theme-mockup{color:#d4af37}
+.tp2 .theme-mockup{color:#5a6b4a}
+.tp3 .theme-mockup{color:#c8922a}
+
+.theme-mockup-names{font-size:clamp(20px,4vw,28px);font-weight:300;font-style:italic;line-height:1.1}
+.theme-mockup-date{font-size:10px;letter-spacing:.2em;text-transform:uppercase;margin-top:8px;opacity:.7}
+.theme-mockup-line{width:40px;height:1px;margin:10px auto;opacity:.4}
+.tp1 .theme-mockup-line{background:#d4af37}
+.tp2 .theme-mockup-line{background:#5a6b4a}
+.tp3 .theme-mockup-line{background:#c8922a}
+
+.theme-overlay-badge{
+  position:absolute;top:14px;right:14px;
+  background:rgba(0,0,0,.6);backdrop-filter:blur(8px);
+  border:1px solid var(--gold-border);border-radius:20px;
+  padding:4px 12px;font-size:9px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--gold);
+}
+.theme-body{padding:clamp(20px,3vw,28px)}
+.theme-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(20px,2.5vw,24px);font-weight:500;
+  color:var(--cream);margin-bottom:8px;
+}
+.theme-desc{font-size:13px;color:var(--cream-dim);line-height:1.7}
+.theme-tag{
+  display:inline-flex;align-items:center;gap:5px;
+  margin-top:14px;padding:4px 12px;
+  background:var(--gold-dim);border:1px solid var(--gold-border);
+  border-radius:20px;font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--gold);
+}
+
+/* ══════════════════════════════════════════════
+   HOW IT WORKS
+   ══════════════════════════════════════════════ */
+#howitworks{background:var(--black-mid)}
+.steps-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));
+  gap:32px;margin-top:56px;position:relative;
+}
+/* Connecting line on desktop */
+@media(min-width:900px){
+  .steps-grid::before{
+    content:'';position:absolute;
+    top:32px;left:10%;right:10%;height:1px;
+    background:linear-gradient(to right,transparent,var(--gold-border),var(--gold-border),transparent);
+  }
+}
+.step-card{text-align:center;position:relative}
+.step-num{
+  width:64px;height:64px;border-radius:50%;
+  border:1px solid var(--gold-border);
+  background:var(--gold-dim);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 20px;
+  font-family:'Cormorant Garamond',serif;
+  font-size:26px;font-weight:400;color:var(--gold);
+  position:relative;z-index:1;
+  transition:var(--transition);
+}
+.step-card:hover .step-num{background:rgba(201,168,76,.22);box-shadow:0 0 24px rgba(201,168,76,.2)}
+.step-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(17px,2.2vw,21px);font-weight:500;
+  color:var(--cream);margin-bottom:8px;
+}
+.step-desc{font-size:13px;color:var(--cream-dim);line-height:1.75;max-width:200px;margin:0 auto}
+
+/* ══════════════════════════════════════════════
+   TESTIMONIALS
+   ══════════════════════════════════════════════ */
+#testimonials{background:var(--black)}
+.testimonials-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));
+  gap:18px;margin-top:48px;
+}
+.testimonial-card{
+  border-radius:12px;overflow:hidden;
+  border:1px solid var(--gold-border);
+  background:var(--black-card);
+  transition:var(--transition);
+  cursor:pointer;
+}
+.testimonial-card:hover{
+  transform:translateY(-5px) scale(1.02);
+  box-shadow:0 16px 48px rgba(0,0,0,.5),0 0 0 1px rgba(201,168,76,.35);
+}
+.testimonial-card img{
+  width:100%;height:auto;
+  display:block;
+  transition:transform .5s ease;
+}
+.testimonial-card:hover img{transform:scale(1.04)}
+.testimonials-empty{
+  text-align:center;padding:60px 20px;
+  color:var(--cream-dim);font-size:14px;
+  grid-column:1/-1;
+}
+.testimonials-empty p{margin-top:10px;opacity:.5;font-size:12px}
+
+/* Testimonial lightbox */
+#t-lightbox{
+  position:fixed;inset:0;z-index:9000;
+  background:rgba(0,0,0,.92);backdrop-filter:blur(12px);
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+#t-lightbox.open{display:flex}
+#t-lightbox img{
+  max-width:min(640px,92vw);max-height:90vh;
+  border-radius:12px;object-fit:contain;
+  border:1px solid var(--gold-border);
+}
+#t-lightbox-close{
+  position:absolute;top:20px;right:20px;
+  background:rgba(201,168,76,.15);border:1px solid var(--gold-border);
+  border-radius:50%;width:40px;height:40px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--gold);font-size:18px;
+  transition:var(--transition);
+}
+#t-lightbox-close:hover{background:rgba(201,168,76,.28)}
+
+/* ══════════════════════════════════════════════
+   BOTTOM CTA
+   ══════════════════════════════════════════════ */
+#cta{
+  background:var(--black-mid);
+  position:relative;overflow:hidden;
+}
+#cta::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 100%,rgba(201,168,76,.1) 0%,transparent 70%),
+    radial-gradient(ellipse 60% 40% at 50% 0%,rgba(201,168,76,.06) 0%,transparent 60%);
+  pointer-events:none;
+}
+.cta-inner{
+  position:relative;z-index:1;
+  text-align:center;max-width:680px;margin:0 auto;
+  padding:clamp(72px,10vw,120px) clamp(16px,5vw,40px);
+}
+.cta-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(36px,6.5vw,68px);
+  font-weight:300;line-height:1.05;color:var(--cream);
+}
+.cta-title em{font-style:italic;color:var(--gold)}
+.cta-sub{font-size:clamp(14px,1.8vw,16px);color:var(--cream-dim);margin:20px 0 40px;line-height:1.8}
+/* Gold shimmer line */
+.cta-line{
+  width:80px;height:1px;margin:0 auto 32px;
+  background:linear-gradient(to right,transparent,var(--gold),transparent);
+}
+
+/* ══════════════════════════════════════════════
+   FOOTER
+   ══════════════════════════════════════════════ */
+#footer{
+  background:var(--black);
+  border-top:1px solid var(--gold-border);
+  padding:clamp(40px,6vw,64px) 0 clamp(24px,4vw,36px);
+}
+.footer-inner{
+  display:grid;grid-template-columns:1fr auto;
+  gap:32px;align-items:center;
+  padding-bottom:32px;
+  border-bottom:1px solid rgba(201,168,76,.08);
+}
+@media(max-width:600px){.footer-inner{grid-template-columns:1fr;text-align:center}}
+.footer-logo{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+@media(max-width:600px){.footer-logo{justify-content:center}}
+.footer-logo img{height:44px;width:auto;object-fit:contain}
+.footer-logo-text{
+  font-family:'Cormorant Garamond',serif;font-size:24px;
+  font-style:italic;color:var(--gold);
+}
+.footer-tagline{font-size:11px;color:var(--cream-faint);margin-top:6px;letter-spacing:.06em}
+.footer-wa{
+  display:inline-flex;align-items:center;gap:9px;
+  padding:12px 24px;
+  background:linear-gradient(135deg,#1a5c2e,#25a244);
+  color:#fff;border-radius:50px;
+  font-size:13px;font-weight:500;
+  transition:var(--transition);
+  box-shadow:0 4px 16px rgba(37,162,68,.28);
+}
+.footer-wa:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(37,162,68,.4)}
+.footer-wa svg{width:18px;height:18px;fill:#fff;flex-shrink:0}
+.footer-bottom{
+  padding-top:24px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+.footer-copy{font-size:11px;color:var(--cream-faint);letter-spacing:.04em}
+.footer-links{display:flex;gap:20px}
+.footer-links a{font-size:11px;color:var(--cream-faint);letter-spacing:.08em;text-transform:uppercase;transition:color .25s}
+.footer-links a:hover{color:var(--gold)}
+
+/* ── WhatsApp FAB ────────────────────────────────────────── */
+#wa-fab{
+  position:fixed;bottom:24px;right:20px;z-index:800;
+  width:54px;height:54px;border-radius:50%;
+  background:linear-gradient(135deg,#1a5c2e,#25a244);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 20px rgba(37,162,68,.4);
+  transition:var(--transition);
+  animation:fabPulse 3s ease infinite;
+}
+#wa-fab:hover{transform:scale(1.12);box-shadow:0 8px 28px rgba(37,162,68,.55)}
+#wa-fab svg{width:26px;height:26px;fill:#fff}
+@keyframes fabPulse{
+  0%,100%{box-shadow:0 4px 20px rgba(37,162,68,.4),0 0 0 0 rgba(37,162,68,.25)}
+  50%{box-shadow:0 4px 20px rgba(37,162,68,.4),0 0 0 10px rgba(37,162,68,0)}
+}
+
+/* ── Responsive tweaks ───────────────────────────────────── */
+@media(max-width:480px){
+  .hero-actions{flex-direction:column;align-items:stretch;max-width:280px;margin-left:auto;margin-right:auto}
+  .hero-actions .btn-gold,.hero-actions .btn-outline{justify-content:center}
+  .footer-bottom{flex-direction:column;text-align:center}
+  .footer-links{justify-content:center}
+}
+  </style>
+</head>
+<body>
+
+<!-- WhatsApp FAB -->
+<a id="wa-fab" href="https://wa.me/94713680340" target="_blank" rel="noopener" aria-label="WhatsApp">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<!-- Testimonial lightbox -->
+<div id="t-lightbox" onclick="closeLightbox(event)">
+  <button id="t-lightbox-close" onclick="document.getElementById('t-lightbox').classList.remove('open')">&#10005;</button>
+  <img id="t-lightbox-img" src="" alt="Testimonial" />
+</div>
+
+<!-- Mobile Drawer -->
+<div id="mobile-drawer">
+  <button id="mobile-close" onclick="closeDrawer()">&#10005;</button>
+  <a href="#features" onclick="closeDrawer()">Features</a>
+  <a href="#themes" onclick="closeDrawer()">Themes</a>
+  <a href="#howitworks" onclick="closeDrawer()">How It Works</a>
+  <a href="#testimonials" onclick="closeDrawer()">Reviews</a>
+  <a href="https://wa.me/94713680340" target="_blank" rel="noopener" onclick="closeDrawer()" style="color:var(--gold)">Order Now</a>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="nav-logo">
+    <img src="assets/logo.png" alt="InviSend Logo" />
+    <span class="nav-logo-text">InviSend</span>
+  </a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#themes">Themes</a>
+    <a href="#howitworks">How It Works</a>
+    <a href="#testimonials">Reviews</a>
+  </div>
+  <a class="btn-gold nav-cta" href="https://wa.me/94713680340" target="_blank" rel="noopener" style="padding:10px 22px;font-size:13px">
+    <span>Order Now</span>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+  <button class="nav-mobile-btn" onclick="openDrawer()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ═══════════════════════════════════════════
+     HERO
+     ═══════════════════════════════════════════ -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-glow"></div>
+
+  <!-- Floating particles -->
+  <div class="hero-particle" style="left:15%;bottom:20%;width:3px;height:3px;animation-duration:6s;animation-delay:0s"></div>
+  <div class="hero-particle" style="left:25%;bottom:30%;animation-duration:8s;animation-delay:1.5s"></div>
+  <div class="hero-particle" style="left:70%;bottom:15%;animation-duration:7s;animation-delay:.8s"></div>
+  <div class="hero-particle" style="left:80%;bottom:35%;width:3px;height:3px;animation-duration:9s;animation-delay:2s"></div>
+  <div class="hero-particle" style="left:45%;bottom:25%;animation-duration:6.5s;animation-delay:.4s"></div>
+  <div class="hero-particle" style="left:60%;bottom:40%;width:1px;height:1px;animation-duration:11s;animation-delay:1s"></div>
+
+  <div class="hero-content">
+    <div class="hero-badge reveal" style="transition-delay:.1s">
+      <span></span>
+      Premium Digital Invitations
+    </div>
+    <h1 class="hero-title reveal" style="transition-delay:.2s">
+      Your Wedding,
+      <em>Beautifully</em>
+      Delivered
+    </h1>
+    <p class="hero-sub reveal" style="transition-delay:.35s">
+      Cinematic digital wedding invitations crafted with luxury and care,
+      shared instantly via WhatsApp to every guest on your list.
+    </p>
+    <div class="hero-actions reveal" style="transition-delay:.5s">
+      <a class="btn-gold" href="https://wa.me/94713680340" target="_blank" rel="noopener">
+        <span>Order Your Invitation</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      </a>
+      <a class="btn-outline" href="#themes">View Themes</a>
+    </div>
+  </div>
+
+  <div class="hero-scroll">
+    <span>Scroll</span>
+    <div class="hero-scroll-line"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     FEATURES
+     ═══════════════════════════════════════════ -->
+<section id="features" class="section">
+  <div class="container">
+    <div class="section-center">
+      <div class="section-label reveal">Why InviSend</div>
+      <h2 class="section-title reveal delay-1">Everything Your Wedding<br><em>Invitation Deserves</em></h2>
+    </div>
+
+    <div class="features-grid">
+
+      <div class="feature-card reveal delay-1">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg>
+        </div>
+        <div class="feature-title">Digital Invitations</div>
+        <div class="feature-desc">Stunning cinematic invitation pages your guests open on any device, no printing, no postage.</div>
+      </div>
+
+      <div class="feature-card reveal delay-2">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+        </div>
+        <div class="feature-title">Mobile Friendly</div>
+        <div class="feature-desc">Every invitation is built mobile-first. Perfect on iPhone, Android, or tablet.</div>
+      </div>
+
+      <div class="feature-card reveal delay-3">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2A19.79 19.79 0 013.09 5.18 2 2 0 015.09 3h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L9.09 10.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        </div>
+        <div class="feature-title">WhatsApp Sharing</div>
+        <div class="feature-desc">Share your invitation link directly via WhatsApp to hundreds of guests in seconds.</div>
+      </div>
+
+      <div class="feature-card reveal delay-1">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <div class="feature-title">Elegant Designs</div>
+        <div class="feature-desc">Three premium themes designed for luxury weddings. Western, Modern, or Traditional.</div>
+      </div>
+
+      <div class="feature-card reveal delay-2">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="feature-title">Fast Delivery</div>
+        <div class="feature-desc">Your invitation is ready within 24 hours of submitting your wedding details.</div>
+      </div>
+
+      <div class="feature-card reveal delay-3">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        </div>
+        <div class="feature-title">RSVP Support</div>
+        <div class="feature-desc">Built-in RSVP system. Guests confirm attendance directly on your invitation page.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     THEMES
+     ═══════════════════════════════════════════ -->
+<section id="themes" class="section">
+  <div class="container">
+    <div class="section-center">
+      <div class="section-label reveal">Our Themes</div>
+      <h2 class="section-title reveal delay-1">Three Styles, One<br><em>Perfect Fit</em></h2>
+      <p class="section-subtitle reveal delay-2">
+        Each theme is a complete cinematic experience, crafted to match your vision.
+      </p>
+    </div>
+
+    <div class="themes-grid">
+
+      <div class="theme-card reveal delay-1">
+        <div class="theme-preview">
+          <div class="theme-preview-inner tp1">
+            <div class="theme-mockup">
+              <div class="theme-mockup-names">Sarah<br>&amp;<br>James</div>
+              <div class="theme-mockup-line"></div>
+              <div class="theme-mockup-date">14 February 2026</div>
+            </div>
+          </div>
+          <div class="theme-overlay-badge">Theme 01</div>
+        </div>
+        <div class="theme-body">
+          <div class="theme-name">Western Luxury</div>
+          <div class="theme-desc">Deep gold, crimson, and ivory tones. Cinematic and opulent, perfect for grand celebrations.</div>
+          <div class="theme-tag">Gold &amp; Black</div>
+        </div>
+      </div>
+
+      <div class="theme-card reveal delay-2">
+        <div class="theme-preview">
+          <div class="theme-preview-inner tp2">
+            <div class="theme-mockup" style="color:#5a6b4a">
+              <div class="theme-mockup-names">Emily<br>&amp;<br>Oliver</div>
+              <div class="theme-mockup-line" style="background:#5a6b4a"></div>
+              <div class="theme-mockup-date">20 March 2026</div>
+            </div>
+          </div>
+          <div class="theme-overlay-badge">Theme 02</div>
+        </div>
+        <div class="theme-body">
+          <div class="theme-name">Modern Elegant</div>
+          <div class="theme-desc">Sage green and soft white. Clean, contemporary, and effortlessly minimal.</div>
+          <div class="theme-tag">Sage &amp; White</div>
+        </div>
+      </div>
+
+      <div class="theme-card reveal delay-3">
+        <div class="theme-preview">
+          <div class="theme-preview-inner tp3">
+            <div class="theme-mockup">
+              <div class="theme-mockup-names">Priya<br>&amp;<br>Arjun</div>
+              <div class="theme-mockup-line" style="background:#c8922a"></div>
+              <div class="theme-mockup-date">06 April 2026</div>
+            </div>
+          </div>
+          <div class="theme-overlay-badge">Theme 03</div>
+        </div>
+        <div class="theme-body">
+          <div class="theme-name">Traditional Elegant</div>
+          <div class="theme-desc">Maroon, antique gold, and ornate detail. Rich heritage for your traditional ceremony.</div>
+          <div class="theme-tag">Maroon &amp; Gold</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     HOW IT WORKS
+     ═══════════════════════════════════════════ -->
+<section id="howitworks" class="section">
+  <div class="container">
+    <div class="section-center">
+      <div class="section-label reveal">The Process</div>
+      <h2 class="section-title reveal delay-1">Ready in Four<br><em>Simple Steps</em></h2>
+    </div>
+
+    <div class="steps-grid">
+      <div class="step-card reveal delay-1">
+        <div class="step-num">1</div>
+        <div class="step-title">Contact Us</div>
+        <div class="step-desc">Reach out on WhatsApp to get started with your order.</div>
+      </div>
+      <div class="step-card reveal delay-2">
+        <div class="step-num">2</div>
+        <div class="step-title">Send Details</div>
+        <div class="step-desc">Share your names, date, venue, photos and preferred theme.</div>
+      </div>
+      <div class="step-card reveal delay-3">
+        <div class="step-num">3</div>
+        <div class="step-title">We Create</div>
+        <div class="step-desc">Our team crafts your cinematic invitation within 24 hours.</div>
+      </div>
+      <div class="step-card reveal delay-4">
+        <div class="step-num">4</div>
+        <div class="step-title">Share &amp; Celebrate</div>
+        <div class="step-desc">Receive your personal link and share it with every guest.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     TESTIMONIALS
+     ═══════════════════════════════════════════ -->
+<section id="testimonials" class="section">
+  <div class="container">
+    <div class="section-center">
+      <div class="section-label reveal">Happy Couples</div>
+      <h2 class="section-title reveal delay-1">What Our Clients<br><em>Are Saying</em></h2>
+      <p class="section-subtitle reveal delay-2">Real reviews from real couples who chose InviSend.</p>
+    </div>
+    <div class="testimonials-grid reveal delay-2" id="testimonials-grid">
+      <div class="testimonials-empty">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold)">Coming Soon</div>
+        <p>Testimonials will appear here once uploaded from the dashboard.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     BOTTOM CTA
+     ═══════════════════════════════════════════ -->
+<section id="cta" class="section">
+  <div class="cta-inner">
+    <div class="section-label reveal" style="display:block;text-align:center">Begin Your Story</div>
+    <h2 class="cta-title reveal delay-1">
+      Make Your Wedding<br>
+      <em>Unforgettable</em>
+    </h2>
+    <div class="cta-line reveal delay-2"></div>
+    <p class="cta-sub reveal delay-2">
+      Join hundreds of couples who chose InviSend for their special day.
+      Order your premium digital invitation today.
+    </p>
+    <div class="reveal delay-3">
+      <a class="btn-gold" href="https://wa.me/94713680340" target="_blank" rel="noopener" style="padding:18px 44px;font-size:clamp(16px,2.2vw,19px)">
+        <span>Order Your Invitation</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════ -->
+<footer id="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div>
+        <div class="footer-logo">
+          <img src="assets/logo.png" alt="InviSend" />
+          <span class="footer-logo-text">InviSend</span>
+        </div>
+        <div class="footer-tagline">Premium Digital Wedding Invitations</div>
+      </div>
+      <a class="footer-wa" href="https://wa.me/94713680340" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Contact on WhatsApp
+      </a>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">&copy; 2026 InviSend. All rights reserved.</div>
+      <div class="footer-links">
+        <a href="index.html">Admin</a>
+        <a href="https://wa.me/94713680340" target="_blank">WhatsApp</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="js/supabase.js"></script>
+<script>
+'use strict';
+
+/* ── Scroll reveal ─────────────────────────────────────── */
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('up'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+/* ── Nav scroll ────────────────────────────────────────── */
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 50);
+}, { passive: true });
+
+/* ── Mobile drawer ─────────────────────────────────────── */
+function openDrawer()  { document.getElementById('mobile-drawer').classList.add('open'); }
+function closeDrawer() { document.getElementById('mobile-drawer').classList.remove('open'); }
+
+/* ── Testimonial lightbox ──────────────────────────────── */
+function openLightbox(src) {
+  document.getElementById('t-lightbox-img').src = src;
+  document.getElementById('t-lightbox').classList.add('open');
+}
+function closeLightbox(e) {
+  if (e.target === document.getElementById('t-lightbox')) {
+    document.getElementById('t-lightbox').classList.remove('open');
+  }
+}
+
+/* ── Load testimonials from Supabase ───────────────────── */
+async function loadTestimonials() {
+  const grid = document.getElementById('testimonials-grid');
+  try {
+    const rows = await sbFetch('testimonials?order=created_at.desc&select=*');
+    if (!rows || !rows.length) return; // keep "coming soon"
+    grid.innerHTML = rows.map(t => `
+      <div class="testimonial-card reveal" onclick="openLightbox('${t.image_url}')">
+        <img src="${t.image_url}" alt="Review" loading="lazy" />
+      </div>`).join('');
+    grid.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+  } catch(e) {
+    // Table may not exist yet — silently keep the placeholder
+    console.log('Testimonials not loaded:', e.message);
+  }
+}
+loadTestimonials();
+</script>
+</body>
+</html>
